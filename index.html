@@ -3,22 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>화투 로그라이크 - 도트 에디션</title>
+  <title>花鬪 (화투) - 일확천금의 밤.</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@500;700;900&family=Noto+Serif+KR:wght@700;900&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Noto Sans KR', sans-serif;
-      background-color: #090d16;
+      background-color: #060911;
       color: #f8fafc;
       overflow: hidden;
     }
     .pixel-font {
       font-family: 'Press Start 2P', monospace;
     }
+    .title-hanja {
+      font-family: 'Noto Serif KR', serif;
+      text-shadow:
+        0 4px 0 #450a0a,
+        0 8px 0 #1c0404,
+        0 0 28px rgba(251, 191, 36, 0.45);
+    }
     @keyframes blinkAmber {
       0%, 100% { border-color: #f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.4); }
       50% { border-color: #fde047; box-shadow: 0 0 18px rgba(253,224,71,0.85); }
+    }
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
     }
     .gauge-near {
       animation: blinkAmber 1.1s infinite;
@@ -28,6 +39,9 @@
       background: linear-gradient(180deg, rgba(250, 204, 21, 0.16) 0%, rgba(15, 23, 42, 0.95) 100%);
       box-shadow: 0 0 14px rgba(250, 204, 21, 0.35);
     }
+    .title-float {
+      animation: floatSlow 3.4s ease-in-out infinite;
+    }
     canvas {
       image-rendering: pixelated;
       image-rendering: crisp-edges;
@@ -35,12 +49,87 @@
       width: 100%;
       height: 100%;
     }
+    .deck-thumb {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    /* 좌측 상태창 페이드인 전환 */
+    #left-sidebar {
+      transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1), transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #left-sidebar.sidebar-hidden {
+      opacity: 0;
+      transform: translateX(-18px);
+      pointer-events: none;
+    }
+    #left-sidebar.sidebar-visible {
+      opacity: 1;
+      transform: translateX(0px);
+      pointer-events: auto;
+    }
   </style>
 </head>
-<body class="h-screen w-screen flex flex-col md:flex-row select-none">
+<body class="h-screen w-screen flex flex-col md:flex-row select-none bg-[#060911]">
 
-  <!-- 왼쪽 패널: 보유 자금, 라운드, 점수, 4대 수집 구슬 게이지 -->
-  <aside class="w-full md:w-[345px] lg:w-[365px] shrink-0 bg-slate-950 border-b-4 md:border-b-0 md:border-r-4 border-slate-800 p-3 sm:p-4 flex flex-col justify-between gap-2 overflow-y-auto z-10">
+  <!-- 메인 타이틀 화면 오버레이 -->
+  <div id="title-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-between py-10 sm:py-14 px-4 transition-opacity duration-500">
+    <!-- 도트 배경 캔버스 -->
+    <canvas id="title-canvas" class="absolute inset-0 w-full h-full -z-10"></canvas>
+
+    <!-- 상단 장식 배지 -->
+    <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/80 border border-amber-500/40 shadow-lg backdrop-blur-xs">
+      <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+      <span class="pixel-font text-[10px] tracking-widest text-amber-300">HWATU ROGUELIKE · PIXEL EDITION</span>
+    </div>
+
+    <!-- 중앙 메인 타이틀 로고 -->
+    <div class="title-float flex flex-col items-center text-center my-auto">
+      <div class="relative px-8 py-6 sm:px-12 sm:py-8 rounded-2xl bg-slate-950/75 border-4 border-amber-500/70 shadow-[0_0_55px_rgba(0,0,0,0.85)] backdrop-blur-xs">
+        <!-- 모서리 도트 금장 장식 -->
+        <span class="absolute top-2 left-2 w-2.5 h-2.5 bg-amber-400"></span>
+        <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-amber-400"></span>
+        <span class="absolute bottom-2 left-2 w-2.5 h-2.5 bg-amber-400"></span>
+        <span class="absolute bottom-2 right-2 w-2.5 h-2.5 bg-amber-400"></span>
+
+        <!-- 붉은 인장 -->
+        <div class="inline-flex items-center justify-center px-2 py-0.5 mb-2 rounded bg-rose-700/90 border border-rose-400/60 text-[10px] font-black tracking-widest text-amber-100">
+          八月空山 · 勝負
+        </div>
+
+        <!-- 게임 이름: 花鬪 + 밑에 아주 작은 글씨로 화투 -->
+        <h1 class="title-hanja text-6xl sm:text-8xl font-black tracking-[0.14em] text-amber-300 leading-none pl-[0.14em]">
+          花鬪
+        </h1>
+        <div class="text-[11px] sm:text-xs font-bold tracking-[0.55em] text-amber-200/80 mt-1.5 pl-[0.55em]">
+          화투
+        </div>
+
+        <!-- 구분선 -->
+        <div class="w-40 sm:w-52 h-[2px] mx-auto my-4 bg-gradient-to-r from-transparent via-amber-400/80 to-transparent"></div>
+
+        <!-- 부제목: 일확천금의 밤. -->
+        <p class="text-base sm:text-xl font-black tracking-[0.22em] text-rose-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] pl-[0.22em]">
+          일확천금의 밤.
+        </p>
+      </div>
+    </div>
+
+    <!-- 하단 시작 버튼 & 안내 -->
+    <div class="flex flex-col items-center gap-3">
+      <button id="btn-start-game" type="button"
+        class="group relative px-10 py-4 rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 hover:from-amber-300 hover:to-amber-500 active:translate-y-0.5 text-slate-950 font-black text-lg sm:text-xl tracking-wider border-b-4 border-amber-900 shadow-[0_0_30px_rgba(245,158,11,0.45)] cursor-pointer transition">
+        <span class="flex items-center gap-2.5">
+          <span>🎴 판 벌리기</span>
+        </span>
+      </button>
+      <div class="text-[11px] text-slate-300/85 bg-slate-950/75 px-3.5 py-1 rounded-full border border-slate-700/70">
+        마우스 클릭으로 패를 선택하고 화투판 위에 내리치세요
+      </div>
+    </div>
+  </div>
+
+  <!-- 왼쪽 패널: 보유 자금, 라운드, 점수, 딜러의 선물, 4대 수집 구슬 게이지 -->
+  <aside id="left-sidebar" class="sidebar-hidden w-full md:w-[345px] lg:w-[365px] shrink-0 bg-slate-950 border-b-4 md:border-b-0 md:border-r-4 border-slate-800 p-3 sm:p-4 flex flex-col justify-between gap-2 overflow-y-auto z-10">
     
     <!-- 상단 보유 자금 & 점당 단가 바 -->
     <div class="space-y-2">
@@ -84,6 +173,17 @@
         <div id="ui-target-bar" class="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 transition-all duration-300" style="width: 0%;"></div>
       </div>
 
+      <!-- 딜러의 선물 (1슬롯 유물) 표시 -->
+      <div id="ui-gift-box" class="bg-slate-900/90 border border-purple-500/40 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <div class="text-[10px] font-black text-purple-300 flex items-center gap-1">
+            <span>🎁 딜러의 선물</span>
+            <span id="ui-gift-name" class="text-white truncate">없음 (보스 격파 시 획득)</span>
+          </div>
+          <div id="ui-gift-desc" class="text-[10px] text-slate-400 truncate">보스 라운드를 클리어하면 고유 유물을 받습니다.</div>
+        </div>
+      </div>
+
       <!-- 보스 라운드 전용 제약 배너 -->
       <div id="ui-boss-box" class="hidden bg-rose-950/80 border-2 border-rose-500 rounded-lg p-2 shadow-[0_0_15px_rgba(244,63,94,0.25)]">
         <div class="flex items-center justify-between text-xs font-black text-rose-300">
@@ -112,9 +212,6 @@
             <span id="ui-total-score">0</span><span class="text-sm ml-0.5">점</span>
           </div>
         </div>
-        <div class="mt-1.5 pt-1.5 border-t border-slate-800 text-[10px] text-slate-400 font-bold text-center">
-          목표를 초과한 점수만큼 <span class="text-yellow-300">점당 정산금</span>을 획득합니다
-        </div>
       </div>
     </div>
 
@@ -123,7 +220,7 @@
       <!-- 광 -->
       <div id="gauge-gwang" class="bg-slate-900 border-2 border-slate-700 rounded-lg p-2 transition-all">
         <div class="flex justify-between items-center text-xs mb-1">
-          <span class="font-black text-amber-300">광 (光) <span class="text-[10px] font-normal text-slate-400">달성 3점 / +2</span></span>
+          <span class="font-black text-amber-300">광 (光) <span id="rule-gwang" class="text-[10px] font-normal text-slate-400">달성 3점 / +2</span></span>
           <span id="status-gwang" class="text-[11px] font-bold text-slate-400">3장 남음</span>
         </div>
         <div id="slots-gwang" class="flex flex-wrap gap-1.5"></div>
@@ -132,7 +229,7 @@
       <!-- 열끗 -->
       <div id="gauge-yeol" class="bg-slate-900 border-2 border-slate-700 rounded-lg p-2 transition-all">
         <div class="flex justify-between items-center text-xs mb-1">
-          <span class="font-black text-orange-300">열끗 <span class="text-[10px] font-normal text-slate-400">달성 1점 / +1</span></span>
+          <span class="font-black text-orange-300">열끗 <span id="rule-yeol" class="text-[10px] font-normal text-slate-400">달성 1점 / +1</span></span>
           <span id="status-yeol" class="text-[11px] font-bold text-slate-400">5장 남음</span>
         </div>
         <div id="slots-yeol" class="flex flex-wrap gap-1.5"></div>
@@ -141,7 +238,7 @@
       <!-- 띠 -->
       <div id="gauge-ddi" class="bg-slate-900 border-2 border-slate-700 rounded-lg p-2 transition-all">
         <div class="flex justify-between items-center text-xs mb-1">
-          <span class="font-black text-indigo-300">띠 <span class="text-[10px] font-normal text-slate-400">달성 1점 / +1</span></span>
+          <span class="font-black text-indigo-300">띠 <span id="rule-ddi" class="text-[10px] font-normal text-slate-400">달성 1점 / +1</span></span>
           <span id="status-ddi" class="text-[11px] font-bold text-slate-400">5장 남음</span>
         </div>
         <div id="slots-ddi" class="flex flex-wrap gap-1.5"></div>
@@ -150,7 +247,7 @@
       <!-- 피 -->
       <div id="gauge-pi" class="bg-slate-900 border-2 border-slate-700 rounded-lg p-2 transition-all">
         <div class="flex justify-between items-center text-xs mb-1">
-          <span class="font-black text-emerald-300">피 <span class="text-[10px] font-normal text-slate-400">달성 1점 / +1</span></span>
+          <span class="font-black text-emerald-300">피 <span id="rule-pi" class="text-[10px] font-normal text-slate-400">달성 1점 / +1</span></span>
           <span id="status-pi" class="text-[11px] font-bold text-slate-400">10장 남음</span>
         </div>
         <div id="slots-pi" class="flex flex-wrap gap-1"></div>
@@ -164,12 +261,12 @@
   </aside>
 
   <!-- 오른쪽 메인 화투 테이블 캔버스 -->
-  <main id="canvas-wrapper" class="relative flex-1 h-full bg-[#0d3b24] overflow-hidden">
+  <main id="canvas-wrapper" class="relative flex-1 h-full bg-[#060911] overflow-hidden">
     <canvas id="game-canvas"></canvas>
   </main>
 
   <!-- 점수 발생 시 강제 GO / STOP 선택 모달 -->
-  <div id="gostop-modal" class="hidden fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50">
+  <div id="gostop-modal" class="hidden fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-40">
     <div class="bg-slate-900 border-4 border-amber-400 rounded-xl p-6 max-w-md w-full text-center space-y-4 shadow-[0_0_40px_rgba(251,191,36,0.35)]">
       <div class="inline-block px-3 py-1 rounded bg-amber-500/20 border border-amber-400/50 pixel-font text-[10px] text-amber-300">
         SCORE TRIGGERED!
@@ -211,7 +308,7 @@
   </div>
 
   <!-- 판 정산 안내 모달 -->
-  <div id="round-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+  <div id="round-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-40">
     <div class="bg-slate-900 border-4 border-slate-600 rounded-xl p-6 max-w-md w-full text-center space-y-4 shadow-2xl">
       <h2 id="modal-title" class="text-xl font-black text-white">판 정산</h2>
       <div id="modal-body" class="bg-slate-950 border-2 border-slate-800 rounded-lg p-3.5 text-xs sm:text-sm text-slate-200 space-y-1.5 text-left leading-relaxed"></div>
@@ -221,10 +318,116 @@
     </div>
   </div>
 
+  <!-- 보스 클리어 보상: 딜러의 선물 선택 모달 (1슬롯 교체형) -->
+  <div id="gift-modal" class="hidden fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border-4 border-purple-500 rounded-xl p-5 sm:p-6 max-w-2xl w-full space-y-4 shadow-[0_0_45px_rgba(168,85,247,0.35)]">
+      <div class="text-center space-y-1">
+        <div class="inline-block px-3 py-1 rounded bg-purple-500/20 border border-purple-400/50 pixel-font text-[10px] text-purple-300">
+          DEALER'S GIFT
+        </div>
+        <h2 class="text-2xl font-black text-white">🎁 딜러의 선물 도착!</h2>
+        <p class="text-xs text-slate-300">보스 격파 보상입니다. 딜러의 선물은 <b class="text-purple-300">단 1개만</b> 소지할 수 있습니다.</p>
+      </div>
+
+      <!-- 현재 소지 중인 선물 안내 -->
+      <div id="gift-current-wrap" class="bg-slate-950 border border-slate-700 rounded-lg p-3 flex items-center justify-between">
+        <div>
+          <div class="text-[10px] font-bold text-slate-400">현재 소지 중인 딜러의 선물</div>
+          <div id="gift-current-name" class="text-sm font-black text-purple-300 mt-0.5">없음</div>
+          <div id="gift-current-desc" class="text-xs text-slate-400">새 선물을 선택해 장착하세요.</div>
+        </div>
+        <span class="px-2 py-1 rounded bg-purple-950 border border-purple-500/40 text-[10px] font-bold text-purple-200">1슬롯 제한</span>
+      </div>
+
+      <!-- 제시된 선물 후보 3개 -->
+      <div id="gift-choices" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+
+      <div class="pt-1 flex justify-end">
+        <button id="gift-skip-btn" type="button"
+          class="w-full py-2.5 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs sm:text-sm border border-slate-600 cursor-pointer transition">
+          현재 선물 유지하고 상점으로 이동 →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 라운드 종료 상점 모달 -->
+  <div id="shop-modal" class="hidden fixed inset-0 bg-black/85 flex items-center justify-center p-3 sm:p-4 z-50">
+    <div class="bg-slate-900 border-4 border-amber-500/80 rounded-xl p-4 sm:p-6 max-w-4xl w-full max-h-[92vh] overflow-y-auto space-y-4 shadow-[0_0_50px_rgba(245,158,11,0.25)]">
+      
+      <!-- 상점 헤더 -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b-2 border-slate-800">
+        <div>
+          <div class="pixel-font text-[10px] text-amber-400">ROUND CLEAR SHOP</div>
+          <h2 class="text-xl sm:text-2xl font-black text-white mt-0.5">🏮 비밀 화투 상점</h2>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button id="shop-view-deck-btn" type="button"
+            class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-black text-sky-300 cursor-pointer transition">
+            🃏 내 덱 보기 (<span id="shop-deck-count">48</span>장)
+          </button>
+          <div class="bg-slate-950 border-2 border-yellow-500/60 rounded-lg px-3 py-1.5 text-right">
+            <div class="text-[10px] text-slate-400 font-bold">보유 자금</div>
+            <div class="text-base sm:text-lg font-black text-yellow-300"><span id="shop-money">0</span>원</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상점 알림 피드백 배너 -->
+      <div id="shop-feedback" class="hidden bg-emerald-950/90 border border-emerald-500/60 rounded-lg px-3 py-2 text-xs font-bold text-emerald-200 text-center"></div>
+
+      <!-- 섹션 1: 패 기본 점수 영구 강화 (고정 판매) -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-black text-amber-300">⬆️ 패 기본 점수 강화 <span class="text-xs font-normal text-slate-400">(조건 달성 시 기본 점수 영구 +1 / 구매할수록 가격 상승)</span></h3>
+        </div>
+        <div id="shop-upgrades-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+      </div>
+
+      <!-- 섹션 2: 덱 개조 특수 아이템 (랜덤 3종) -->
+      <div class="space-y-2 pt-2 border-t border-slate-800">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-black text-sky-300">🎲 특수 덱 개조 아이템 <span class="text-xs font-normal text-slate-400">(매 라운드 무작위 3종 입고)</span></h3>
+          <button id="shop-reroll-btn" type="button"
+            class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-40 border border-slate-600 text-xs font-black text-amber-300 cursor-pointer disabled:cursor-not-allowed transition">
+            🔄 목록 새로고침 (<span id="shop-reroll-cost">1,000</span>원)
+          </button>
+        </div>
+        <div id="shop-random-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
+      </div>
+
+      <!-- 다음 라운드 출발 버튼 -->
+      <div class="pt-2 border-t-2 border-slate-800">
+        <button id="shop-next-round-btn" type="button"
+          class="w-full py-3.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 active:translate-y-0.5 text-slate-950 font-black text-base border-b-4 border-emerald-800 cursor-pointer transition">
+          다음 라운드 출발 →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 덱 조회 및 개조 대상 카드 선택 모달 -->
+  <div id="deck-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-3 sm:p-4 z-[60]">
+    <div class="bg-slate-900 border-4 border-sky-500 rounded-xl p-4 sm:p-5 max-w-4xl w-full max-h-[90vh] flex flex-col gap-3 shadow-2xl">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div>
+          <h3 id="deck-modal-title" class="text-lg sm:text-xl font-black text-white">내 덱 구성 확인</h3>
+          <p id="deck-modal-desc" class="text-xs text-slate-300 mt-0.5">현재 덱에 포함된 모든 화투패 목록입니다.</p>
+        </div>
+        <button id="deck-modal-close-btn" type="button"
+          class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-black text-slate-200 cursor-pointer">
+          닫기 ✕
+        </button>
+      </div>
+
+      <div id="deck-cards-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 overflow-y-auto p-1 flex-1"></div>
+    </div>
+  </div>
+
   <script>
     /**
      * ============================================================================
-     * 0. Web Audio API 사운드 엔진 (승인된 B버전 드라이 하이햇 '챱!' + 보조 효과음)
+     * 0. Web Audio API 사운드 엔진 (드라이 하이햇 '챱!' + 담요/분배 효과음)
      * ============================================================================
      */
     const sfx = (() => {
@@ -389,9 +592,55 @@
           const c = ensureContext();
           if (!c) return;
           fn(c);
-        } catch (e) {
-          // 오디오 재생 실패 시에도 게임 진행이 멈추지 않도록 무시
-        }
+        } catch (e) {}
+      }
+
+      function playBlanketSpread() {
+        safePlay((c) => {
+          if (!noiseBuffer) return;
+          const now = c.currentTime;
+          const src = c.createBufferSource();
+          src.buffer = noiseBuffer;
+
+          const filter = c.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(320, now);
+          filter.frequency.exponentialRampToValueAtTime(1400, now + 0.25);
+          filter.frequency.exponentialRampToValueAtTime(260, now + 0.55);
+
+          const gain = c.createGain();
+          gain.gain.setValueAtTime(0.01, now);
+          gain.gain.linearRampToValueAtTime(0.26, now + 0.16);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.58);
+
+          src.connect(filter);
+          filter.connect(gain);
+          gain.connect(c.destination);
+          src.start(now, 0, 0.62);
+        });
+      }
+
+      function playDealTick(pitchBoost = 0) {
+        safePlay((c) => {
+          if (!noiseBuffer) return;
+          const now = c.currentTime;
+          const src = c.createBufferSource();
+          src.buffer = noiseBuffer;
+
+          const filter = c.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(2800 + pitchBoost * 65, now);
+          filter.Q.setValueAtTime(2.8, now);
+
+          const gain = c.createGain();
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.032);
+
+          src.connect(filter);
+          filter.connect(gain);
+          gain.connect(c.destination);
+          src.start(now, Math.random() * 0.5, 0.04);
+        });
       }
 
       function playChapSlap(isGwang = false, isSweep = false) {
@@ -486,22 +735,6 @@
           gain.connect(c.destination);
           osc.start(now);
           osc.stop(now + 0.07);
-
-          if (noiseBuffer) {
-            const nSrc = c.createBufferSource();
-            nSrc.buffer = noiseBuffer;
-            const bp = c.createBiquadFilter();
-            bp.type = 'bandpass';
-            bp.frequency.setValueAtTime(1400, now);
-            bp.Q.setValueAtTime(2.5, now);
-            const ng = c.createGain();
-            ng.gain.setValueAtTime(0.12, now);
-            ng.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-            nSrc.connect(bp);
-            bp.connect(ng);
-            ng.connect(c.destination);
-            nSrc.start(now, Math.random() * 0.5, 0.035);
-          }
         });
       }
 
@@ -619,6 +852,25 @@
         });
       }
 
+      function playShopBuy() {
+        safePlay((c) => {
+          const now = c.currentTime;
+          [783.99, 1046.5].forEach((freq, idx) => {
+            const t = now + idx * 0.05;
+            const osc = c.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+            const gain = c.createGain();
+            gain.gain.setValueAtTime(0.15, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+            osc.connect(gain);
+            gain.connect(c.destination);
+            osc.start(t);
+            osc.stop(t + 0.18);
+          });
+        });
+      }
+
       function toggleMute() {
         muted = !muted;
         if (!muted) ensureContext();
@@ -627,6 +879,8 @@
 
       return {
         ensureContext,
+        playBlanketSpread,
+        playDealTick,
         playChapSlap,
         playCardSelect,
         playDeckDraw,
@@ -636,13 +890,14 @@
         playGoDeclare,
         playRoundClear,
         playRoundFail,
+        playShopBuy,
         toggleMute
       };
     })();
 
     /**
      * ============================================================================
-     * 1. 고밀도 픽셀 아트 화투패(48장, 64x98) 스프라이트 오프스크린 생성기
+     * 1. 고밀도 픽셀 아트 화투패(64x98) 스프라이트 오프스크린 생성기
      * ============================================================================
      */
     const CARD_W = 64;
@@ -774,8 +1029,9 @@
     }
 
     function getCardSprite(spec) {
-      if (cardSpriteCache.has(spec.art)) {
-        return cardSpriteCache.get(spec.art);
+      const cacheKey = `${spec.month}_${spec.type}_${spec.art}_${spec.piValue === 2 ? '2' : '1'}`;
+      if (cardSpriteCache.has(cacheKey)) {
+        return cardSpriteCache.get(cacheKey);
       }
 
       const c = document.createElement('canvas');
@@ -1170,9 +1426,15 @@
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 9px "Noto Sans KR", sans-serif';
         ctx.fillText('띠', 51, 12.8);
+      } else if (spec.type === '피' && spec.piValue === 2) {
+        px(ctx, 41, 6, 17, 13, '#064e3b');
+        px(ctx, 42, 7, 15, 11, '#10b981');
+        ctx.fillStyle = '#fef08a';
+        ctx.font = 'bold 8px "Noto Sans KR", sans-serif';
+        ctx.fillText('쌍피', 49.5, 12.8);
       }
 
-      cardSpriteCache.set(spec.art, c);
+      cardSpriteCache.set(cacheKey, c);
       return c;
     }
 
@@ -1200,10 +1462,182 @@
 
     /**
      * ============================================================================
-     * 2. 게임 상태, 초과 점수 기반 정산, 보스 제약, 단순화 맞고 룰 엔진
+     * 1-B. 메인 타이틀 화면 전용 도트 아트 배경 렌더러 (저해상도 픽셀 캔버스 업스케일)
+     * ============================================================================
+     */
+    const titleArtController = (() => {
+      const tCanvas = document.getElementById('title-canvas');
+      const tCtx = tCanvas.getContext('2d');
+      const PIX_W = 320;
+      const PIX_H = 180;
+      tCanvas.width = PIX_W;
+      tCanvas.height = PIX_H;
+      tCtx.imageSmoothingEnabled = false;
+
+      const petals = Array.from({ length: 28 }, (_, i) => ({
+        x: (i * 37) % PIX_W,
+        y: (i * 23) % PIX_H,
+        vx: -10 - (i % 4) * 4,
+        vy: 8 + (i % 3) * 4,
+        isGold: i % 5 === 0,
+        phase: i * 0.7
+      }));
+
+      const stars = Array.from({ length: 42 }, (_, i) => ({
+        x: (i * 73 + 11) % PIX_W,
+        y: (i * 29 + 5) % 92,
+        speed: 1.5 + (i % 4) * 0.6,
+        phase: i * 1.1
+      }));
+
+      const showcaseSpecs = [
+        HWATU_SPECS[0],  // 1월 광
+        HWATU_SPECS[8],  // 3월 광
+        HWATU_SPECS[28], // 8월 광
+        HWATU_SPECS[40], // 11월 광
+        HWATU_SPECS[44]  // 12월 광
+      ];
+
+      let running = true;
+
+      function drawPixelCoin(ctx, cx, cy, r) {
+        pxCircle(ctx, cx, cy + 1, r, '#78350f');
+        pxCircle(ctx, cx, cy, r, '#d97706');
+        pxCircle(ctx, cx, cy, r - 1, '#facc15');
+        px(ctx, cx - 1, cy - 1, 2, 2, '#78350f');
+        px(ctx, cx - r + 2, cy - r + 2, 1, 1, '#fef9c3');
+      }
+
+      function renderTitleFrame(nowMs) {
+        if (!running) return;
+        const t = nowMs * 0.001;
+
+        // 1. 밤하늘 그라데이션 밴드 (도트 디더링 감성)
+        px(tCtx, 0, 0, PIX_W, 34, '#050814');
+        px(tCtx, 0, 34, PIX_W, 30, '#091026');
+        px(tCtx, 0, 64, PIX_W, 28, '#0f1736');
+        px(tCtx, 0, 92, PIX_W, 26, '#172047');
+
+        // 2. 반짝이는 도트 별
+        stars.forEach((s) => {
+          const blink = Math.sin(t * s.speed + s.phase);
+          if (blink > -0.2) {
+            px(tCtx, s.x, s.y, 1, 1, blink > 0.6 ? '#fef08a' : '#94a3b8');
+          }
+        });
+
+        // 3. 팔월 공산 거대 보름달
+        const moonX = 252;
+        const moonY = 44;
+        pxCircle(tCtx, moonX, moonY, 27, 'rgba(254, 240, 138, 0.12)');
+        pxCircle(tCtx, moonX, moonY, 22, '#fef08a');
+        pxCircle(tCtx, moonX, moonY, 19, '#fefce8');
+        pxCircle(tCtx, moonX - 6, moonY - 4, 3, '#fde68a');
+        pxCircle(tCtx, moonX + 7, moonY + 5, 4, '#fde68a');
+        pxCircle(tCtx, moonX + 2, moonY - 8, 2, '#fef3c7');
+
+        // 4. 원경 산맥 & 소나무 실루엣
+        for (let x = 0; x < PIX_W; x += 2) {
+          const h1 = 18 + Math.sin(x * 0.025) * 9 + Math.cos(x * 0.06) * 4;
+          px(tCtx, x, 114 - h1, 2, h1 + 10, '#090e1f');
+        }
+        // 왼쪽 기와 처마 실루엣 + 흔들리는 홍등
+        px(tCtx, 0, 0, 68, 12, '#04060d');
+        px(tCtx, 0, 12, 58, 6, '#0b1120');
+        px(tCtx, 0, 18, 48, 4, '#1e293b');
+        const swing = Math.round(Math.sin(t * 2.2) * 2);
+        px(tCtx, 38, 22, 1, 10, '#78350f');
+        const lx = 38 + swing;
+        const ly = 32;
+        pxCircle(tCtx, lx, ly + 6, 14, 'rgba(239, 68, 68, 0.18)');
+        px(tCtx, lx - 4, ly, 9, 2, '#facc15');
+        px(tCtx, lx - 5, ly + 2, 11, 9, '#b91c1c');
+        px(tCtx, lx - 4, ly + 3, 9, 7, '#ef4444');
+        px(tCtx, lx - 2, ly + 4, 5, 5, '#fca5a5');
+        px(tCtx, lx - 4, ly + 11, 9, 2, '#facc15');
+        px(tCtx, lx, ly + 13, 1, 4, '#f59e0b');
+
+        // 5. 하단 나무 탁자 & 초록 화투 담요 모서리
+        px(tCtx, 0, 116, PIX_W, 64, '#1c0c06');
+        px(tCtx, 0, 116, PIX_W, 3, '#451a03');
+        px(tCtx, 0, 119, PIX_W, 2, '#78350f');
+
+        // 탁자 위 펼쳐진 초록 담요 영역
+        px(tCtx, 18, 125, PIX_W - 36, 55, '#093821');
+        px(tCtx, 20, 127, PIX_W - 40, 53, '#0f5132');
+        // 담요 금실 테두리 스티치
+        for (let sx = 24; sx < PIX_W - 24; sx += 6) {
+          px(tCtx, sx, 129, 3, 1, '#eab308');
+        }
+
+        // 6. 부채꼴로 놓인 오광(五光) 도트 화투패 5장
+        const cardPositions = [
+          { x: 64,  y: 158, ang: -0.34, idx: 0 },
+          { x: 112, y: 151, ang: -0.17, idx: 1 },
+          { x: 160, y: 148, ang:  0.00, idx: 2 },
+          { x: 208, y: 151, ang:  0.17, idx: 3 },
+          { x: 256, y: 158, ang:  0.34, idx: 4 }
+        ];
+        cardPositions.forEach((cp, i) => {
+          const sprite = getCardSprite(showcaseSpecs[cp.idx]);
+          const bob = Math.sin(t * 2.4 + i * 0.8) * 1.5;
+          tCtx.save();
+          tCtx.translate(cp.x, cp.y + bob);
+          tCtx.rotate(cp.ang);
+          tCtx.fillStyle = 'rgba(0,0,0,0.55)';
+          tCtx.fillRect(-15, -22, 32, 48);
+          tCtx.drawImage(sprite, -16, -24, 32, 48);
+          tCtx.restore();
+        });
+
+        // 7. 반짝이는 도트 금화 더미
+        drawPixelCoin(tCtx, 36, 164, 4);
+        drawPixelCoin(tCtx, 43, 167, 4);
+        drawPixelCoin(tCtx, 39, 160, 4);
+        drawPixelCoin(tCtx, 280, 165, 4);
+        drawPixelCoin(tCtx, 287, 162, 4);
+        drawPixelCoin(tCtx, 275, 168, 3);
+
+        // 8. 흩날리는 도트 벚꽃잎 & 금빛 반딧불
+        petals.forEach((p) => {
+          p.x += p.vx * 0.016;
+          p.y += p.vy * 0.016;
+          if (p.x < -4) p.x = PIX_W + 4;
+          if (p.y > PIX_H + 4) {
+            p.y = -4;
+            p.x = Math.random() * PIX_W;
+          }
+          const sway = Math.sin(t * 3 + p.phase) * 2;
+          if (p.isGold) {
+            px(tCtx, p.x + sway, p.y, 2, 2, '#fde047');
+          } else {
+            px(tCtx, p.x + sway, p.y, 2, 1, '#fbcfe8');
+            px(tCtx, p.x + sway + 1, p.y + 1, 1, 1, '#f472b6');
+          }
+        });
+
+        requestAnimationFrame(renderTitleFrame);
+      }
+
+      function start() {
+        running = true;
+        requestAnimationFrame(renderTitleFrame);
+      }
+
+      function stop() {
+        running = false;
+      }
+
+      return { start, stop };
+    })();
+
+    /**
+     * ============================================================================
+     * 2. 게임 상태, 상점 강화, 딜러의 선물(1슬롯 유물), 보스 제약, 룰 엔진
      * ============================================================================
      */
     const MAX_HANDS_PER_ROUND = 3;
+    let nextCardUid = 1;
 
     const BOSS_CONSTRAINTS = [
       {
@@ -1233,6 +1667,159 @@
       }
     ];
 
+    const DEALER_GIFTS = [
+      {
+        id: 'PI_REQ_DOWN',
+        icon: '🍃',
+        name: '피의 축복',
+        desc: '피 점수 달성 조건이 1장 줄어듭니다. (10장 → 9장)'
+      },
+      {
+        id: 'GO_MULT_UP',
+        icon: '🎲',
+        name: '승부사의 주사위',
+        desc: 'GO 선언 시 배율 단위가 +1 증가합니다. (×2 → ×3배수)'
+      },
+      {
+        id: 'EXTRA_HAND',
+        icon: '🃏',
+        name: '여유로운 손패',
+        desc: '매 판 시작 시 손패를 1장 더 받습니다. (10장 → 11장)'
+      },
+      {
+        id: 'INTEREST',
+        icon: '💰',
+        name: '황금 저금통',
+        desc: '라운드 클리어 시 보유 자금의 20%를 이자로 받습니다. (최대 +10,000원)'
+      },
+      {
+        id: 'RIBBON_ANIMAL_DOWN',
+        icon: '🎗️',
+        name: '오행의 조화',
+        desc: '열끗과 띠의 점수 달성 조건이 각각 1장 줄어듭니다. (5장 → 4장)'
+      }
+    ];
+
+    const UPGRADE_DEFS = [
+      { key: 'pi', name: '피 기본점수 강화', badge: '피', color: 'emerald', baseCost: 2000, stepCost: 1500, basePts: 1 },
+      { key: 'ddi', name: '띠 기본점수 강화', badge: '띠', color: 'indigo', baseCost: 2000, stepCost: 1500, basePts: 1 },
+      { key: 'yeol', name: '열끗 기본점수 강화', badge: '끗', color: 'orange', baseCost: 2000, stepCost: 1500, basePts: 1 },
+      { key: 'gwang', name: '광 기본점수 강화', badge: '光', color: 'amber', baseCost: 3000, stepCost: 2500, basePts: 3 }
+    ];
+
+    const RANDOM_SHOP_POOL = [
+      {
+        id: 'REMOVE_CARD',
+        weight: 22,
+        rarity: '일반',
+        rarityColor: 'text-slate-300',
+        cost: 2000,
+        icon: '🔥',
+        name: '패 소각',
+        desc: '덱에서 원하는 패 1장을 선택해 영구 제거합니다.'
+      },
+      {
+        id: 'MAKE_PI',
+        weight: 24,
+        rarity: '일반',
+        rarityColor: 'text-slate-300',
+        cost: 1500,
+        icon: '🌱',
+        name: '피 한 장 제작',
+        desc: '무작위 월의 피 패 1장을 내 덱에 추가합니다.'
+      },
+      {
+        id: 'MAKE_DDI',
+        weight: 16,
+        rarity: '고급',
+        rarityColor: 'text-sky-300',
+        cost: 2500,
+        icon: '🎀',
+        name: '띠 한 장 제작',
+        desc: '무작위 월의 띠 패 1장을 내 덱에 추가합니다.'
+      },
+      {
+        id: 'MAKE_YEOL',
+        weight: 16,
+        rarity: '고급',
+        rarityColor: 'text-sky-300',
+        cost: 2500,
+        icon: '🦅',
+        name: '열끗 한 장 제작',
+        desc: '무작위 월의 열끗 패 1장을 내 덱에 추가합니다.'
+      },
+      {
+        id: 'MAKE_GWANG',
+        weight: 4,
+        rarity: '희귀',
+        rarityColor: 'text-amber-300',
+        cost: 5500,
+        icon: '☀️',
+        name: '광(光) 창조',
+        desc: '무작위 광 패 1장을 내 덱에 새롭게 추가합니다!'
+      },
+      {
+        id: 'TO_PI',
+        weight: 20,
+        rarity: '일반',
+        rarityColor: 'text-slate-300',
+        cost: 1500,
+        icon: '🍂',
+        name: '피로 변환',
+        desc: '덱의 패 1장을 선택해 피로 바꿉니다.'
+      },
+      {
+        id: 'TO_DDI',
+        weight: 15,
+        rarity: '고급',
+        rarityColor: 'text-sky-300',
+        cost: 2500,
+        icon: '🧵',
+        name: '띠로 변환',
+        desc: '덱의 패 1장을 선택해 띠로 바꿉니다.'
+      },
+      {
+        id: 'TO_YEOL',
+        weight: 15,
+        rarity: '고급',
+        rarityColor: 'text-sky-300',
+        cost: 2500,
+        icon: '🦌',
+        name: '열끗으로 변환',
+        desc: '덱의 패 1장을 선택해 열끗으로 바꿉니다.'
+      },
+      {
+        id: 'TO_GWANG',
+        weight: 2,
+        rarity: '전설',
+        rarityColor: 'text-rose-400',
+        cost: 6500,
+        icon: '👑',
+        name: '광(光) 승급',
+        desc: '덱의 패 1장을 선택해 찬란한 광으로 승급시킵니다!'
+      },
+      {
+        id: 'RANDOMIZE_CARD',
+        weight: 18,
+        rarity: '일반',
+        rarityColor: 'text-slate-300',
+        cost: 1500,
+        icon: '🌀',
+        name: '혼돈의 변이',
+        desc: '덱의 패 1장을 선택해 완전 무작위 패로 바꿉니다.'
+      },
+      {
+        id: 'UPGRADE_SSANGPI',
+        weight: 14,
+        rarity: '고급',
+        rarityColor: 'text-emerald-300',
+        cost: 3000,
+        icon: '✨',
+        name: '쌍피 각인',
+        desc: '덱의 일반 피 1장을 2장 취급되는 쌍피로 개조합니다.'
+      }
+    ];
+
     const game = {
       round: 1,
       money: 0,
@@ -1240,16 +1827,19 @@
       targetScore: 5,
       bankedScore: 0,
       bossModifier: null,
-      perks: {
-        gwangReqDelta: 0,
-        yeolReqDelta: 0,
-        ddiReqDelta: 0,
-        piReqDelta: 0,
-        goMultBonus: 0,
-        extraHand: 0,
-        piFlatBonus: 0
+
+      masterDeck: [],
+      scoreUpgrades: {
+        pi: 0,
+        ddi: 0,
+        yeol: 0,
+        gwang: 0
       },
-      relicNames: [],
+      dealerGift: null,
+
+      shopRandomOffers: [],
+      shopRerollCost: 1000,
+      pendingNextStage: 2,
 
       deck: [],
       tableCards: [],
@@ -1259,11 +1849,16 @@
       baseScoreAtLastGo: 0,
       lastTriggeredBase: 0,
 
-      phase: 'SELECT_HAND',
+      phase: 'TITLE', // 'TITLE' | 'BLANKET_ROLL' | 'DEALING' | 'SELECT_HAND' | 'PLACE_HAND' | 'CLICK_DECK' | 'PLACE_DRAWN' | 'ANIMATING' | 'MODAL'
       selectedHandIdx: -1,
       drawnCard: null,
       pendingEndTimer: null,
       animWatchdog: 0,
+
+      // 연출 애니메이션 상태
+      blanketProgress: 0,      // 0 ~ 1 (초록 담요 깔리는 진행도)
+      blanketOnComplete: null,
+      dealingAnim: null,       // { tasks: [], activeFlies: [], spawnTimer: 0, interval: 0.055, onAllDone: fn }
 
       flyingCard: null,
       slapHoldAnim: null,
@@ -1283,6 +1878,10 @@
     };
 
     const dom = {
+      titleScreen: document.getElementById('title-screen'),
+      startGameBtn: document.getElementById('btn-start-game'),
+      leftSidebar: document.getElementById('left-sidebar'),
+
       money: document.getElementById('ui-money'),
       pointRate: document.getElementById('ui-point-rate'),
       soundBtn: document.getElementById('btn-sound-toggle'),
@@ -1291,6 +1890,8 @@
       banked: document.getElementById('ui-banked'),
       target: document.getElementById('ui-target'),
       targetBar: document.getElementById('ui-target-bar'),
+      giftName: document.getElementById('ui-gift-name'),
+      giftDesc: document.getElementById('ui-gift-desc'),
       bossBox: document.getElementById('ui-boss-box'),
       bossName: document.getElementById('ui-boss-name'),
       bossDesc: document.getElementById('ui-boss-desc'),
@@ -1300,6 +1901,11 @@
       baseScore: document.getElementById('ui-base-score'),
       mult: document.getElementById('ui-mult'),
       totalScore: document.getElementById('ui-total-score'),
+      ruleGwang: document.getElementById('rule-gwang'),
+      ruleYeol: document.getElementById('rule-yeol'),
+      ruleDdi: document.getElementById('rule-ddi'),
+      rulePi: document.getElementById('rule-pi'),
+
       gostopModal: document.getElementById('gostop-modal'),
       gsTitle: document.getElementById('gs-title'),
       gsRaw: document.getElementById('gs-raw'),
@@ -1311,16 +1917,113 @@
       gsGoLabel: document.getElementById('gs-go-label'),
       modalBtnGo: document.getElementById('modal-btn-go'),
       modalBtnStop: document.getElementById('modal-btn-stop'),
+
       roundModal: document.getElementById('round-modal'),
       modalTitle: document.getElementById('modal-title'),
       modalBody: document.getElementById('modal-body'),
-      modalConfirmBtn: document.getElementById('modal-confirm-btn')
+      modalConfirmBtn: document.getElementById('modal-confirm-btn'),
+
+      giftModal: document.getElementById('gift-modal'),
+      giftCurrentName: document.getElementById('gift-current-name'),
+      giftCurrentDesc: document.getElementById('gift-current-desc'),
+      giftChoices: document.getElementById('gift-choices'),
+      giftSkipBtn: document.getElementById('gift-skip-btn'),
+
+      shopModal: document.getElementById('shop-modal'),
+      shopMoney: document.getElementById('shop-money'),
+      shopDeckCount: document.getElementById('shop-deck-count'),
+      shopViewDeckBtn: document.getElementById('shop-view-deck-btn'),
+      shopFeedback: document.getElementById('shop-feedback'),
+      shopUpgradesGrid: document.getElementById('shop-upgrades-grid'),
+      shopRandomGrid: document.getElementById('shop-random-grid'),
+      shopRerollBtn: document.getElementById('shop-reroll-btn'),
+      shopRerollCost: document.getElementById('shop-reroll-cost'),
+      shopNextRoundBtn: document.getElementById('shop-next-round-btn'),
+
+      deckModal: document.getElementById('deck-modal'),
+      deckModalTitle: document.getElementById('deck-modal-title'),
+      deckModalDesc: document.getElementById('deck-modal-desc'),
+      deckModalCloseBtn: document.getElementById('deck-modal-close-btn'),
+      deckCardsGrid: document.getElementById('deck-cards-grid')
     };
+
+    function showLeftSidebar() {
+      dom.leftSidebar.classList.remove('sidebar-hidden');
+      dom.leftSidebar.classList.add('sidebar-visible');
+    }
+
+    function hideLeftSidebar() {
+      dom.leftSidebar.classList.remove('sidebar-visible');
+      dom.leftSidebar.classList.add('sidebar-hidden');
+    }
 
     dom.soundBtn.addEventListener('click', () => {
       const isMuted = sfx.toggleMute();
       dom.soundBtn.textContent = isMuted ? '🔇' : '🔊';
     });
+
+    // 메인 화면 -> 초록 담요 깔림 -> 패 분배 -> 이후 좌측 창 페이드인
+    dom.startGameBtn.addEventListener('click', () => {
+      sfx.ensureContext();
+      sfx.playBlanketSpread();
+
+      dom.titleScreen.style.opacity = '0';
+      dom.titleScreen.style.pointerEvents = 'none';
+      setTimeout(() => {
+        dom.titleScreen.classList.add('hidden');
+        titleArtController.stop();
+      }, 500);
+
+      // 게임 초기 데이터 세팅
+      game.round = 1;
+      game.money = 0;
+      game.bossModifier = null;
+      game.masterDeck = createInitialMasterDeck();
+      game.scoreUpgrades = { pi: 0, ddi: 0, yeol: 0, gwang: 0 };
+      game.dealerGift = null;
+      game.handsLeft = getMaxHandsForCurrentRound();
+      game.bankedScore = 0;
+      game.targetScore = Math.round(4 + 1 * 1 * 0.9 + 1 * 1.5);
+      game.deck = createShuffledDeckFromMaster();
+      game.tableCards = [];
+      game.handCards = [];
+      game.captured = [];
+
+      hideLeftSidebar();
+      syncLeftUI();
+
+      // 1단계: 초록 담요 깔기 애니메이션
+      game.phase = 'BLANKET_ROLL';
+      game.blanketProgress = 0;
+      game.blanketOnComplete = () => {
+        // 2단계: 패 나눠주는 모션 -> 3단계: 완료 후 좌측 창 페이드인
+        startRound(1, {
+          animatedDeal: true,
+          sidebarMode: 'AFTER_DEAL'
+        });
+      };
+    });
+
+    function createInitialMasterDeck() {
+      nextCardUid = 1;
+      return HWATU_SPECS.map((s) => ({
+        uid: nextCardUid++,
+        month: s.month,
+        type: s.type,
+        label: s.label,
+        art: s.art,
+        piValue: 1
+      }));
+    }
+
+    function createShuffledDeckFromMaster() {
+      const list = game.masterDeck.map((c) => ({ ...c }));
+      for (let i = list.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [list[i], list[j]] = [list[j], list[i]];
+      }
+      return list;
+    }
 
     function getWaveInfo(stageNum) {
       const wave = Math.floor((stageNum - 1) / 4) + 1;
@@ -1338,21 +2041,17 @@
     function calculateRoundPayout() {
       const pointRate = getCurrentPointRate();
       const overScore = Math.max(0, game.bankedScore - game.targetScore);
-      const earnedMoney = overScore * pointRate;
+      const baseEarned = overScore * pointRate;
+      const interestBonus = (game.dealerGift?.id === 'INTEREST')
+        ? Math.min(10000, Math.floor(game.money * 0.2))
+        : 0;
       return {
         pointRate,
         overScore,
-        earnedMoney
+        baseEarned,
+        interestBonus,
+        earnedMoney: baseEarned + interestBonus
       };
-    }
-
-    function createShuffledDeck() {
-      const list = HWATU_SPECS.map((s, idx) => ({ id: idx + 1, ...s }));
-      for (let i = list.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [list[i], list[j]] = [list[j], list[i]];
-      }
-      return list;
     }
 
     function getMaxHandsForCurrentRound() {
@@ -1360,15 +2059,22 @@
     }
 
     function getConfig() {
-      const p = game.perks;
+      const gift = game.dealerGift?.id;
       const bossPiPenalty = game.bossModifier?.id === 'HEAVY_PI' ? 3 : 0;
+      const giftPiDelta = gift === 'PI_REQ_DOWN' ? -1 : 0;
+      const giftYeolDdiDelta = gift === 'RIBBON_ANIMAL_DOWN' ? -1 : 0;
+      const giftGoMultBonus = gift === 'GO_MULT_UP' ? 1 : 0;
+
       return {
-        gwangReq: Math.max(2, 3 + p.gwangReqDelta),
-        yeolReq: Math.max(2, 5 + p.yeolReqDelta),
-        ddiReq: Math.max(2, 5 + p.ddiReqDelta),
-        piReq: Math.max(4, 10 + p.piReqDelta + bossPiPenalty),
-        goMultBase: 2 + p.goMultBonus,
-        piFlatBonus: p.piFlatBonus
+        gwangReq: 3,
+        yeolReq: Math.max(2, 5 + giftYeolDdiDelta),
+        ddiReq: Math.max(2, 5 + giftYeolDdiDelta),
+        piReq: Math.max(4, 10 + bossPiPenalty + giftPiDelta),
+        gwangBasePts: 3 + game.scoreUpgrades.gwang,
+        yeolBasePts: 1 + game.scoreUpgrades.yeol,
+        ddiBasePts: 1 + game.scoreUpgrades.ddi,
+        piBasePts: 1 + game.scoreUpgrades.pi,
+        goMultBase: 2 + giftGoMultBonus
       };
     }
 
@@ -1380,16 +2086,22 @@
         if (c.type === '광') gwangCnt++;
         else if (c.type === '열끗') yeolCnt++;
         else if (c.type === '띠') ddiCnt++;
-        else if (c.type === '피') piCnt += 1;
+        else if (c.type === '피') piCnt += (c.piValue || 1);
       });
 
       const isGwangSealed = game.bossModifier?.id === 'NO_GWANG';
       const gwangPts = (!isGwangSealed && gwangCnt >= cfg.gwangReq)
-        ? 3 + (gwangCnt - cfg.gwangReq) * 2
+        ? cfg.gwangBasePts + (gwangCnt - cfg.gwangReq) * 2
         : 0;
-      const yeolPts = yeolCnt >= cfg.yeolReq ? 1 + (yeolCnt - cfg.yeolReq) : 0;
-      const ddiPts = ddiCnt >= cfg.ddiReq ? 1 + (ddiCnt - cfg.ddiReq) : 0;
-      const piPts = piCnt >= cfg.piReq ? 1 + (piCnt - cfg.piReq) + cfg.piFlatBonus : 0;
+      const yeolPts = yeolCnt >= cfg.yeolReq
+        ? cfg.yeolBasePts + (yeolCnt - cfg.yeolReq)
+        : 0;
+      const ddiPts = ddiCnt >= cfg.ddiReq
+        ? cfg.ddiBasePts + (ddiCnt - cfg.ddiReq)
+        : 0;
+      const piPts = piCnt >= cfg.piReq
+        ? cfg.piBasePts + (piCnt - cfg.piReq)
+        : 0;
 
       const baseScore = gwangPts + yeolPts + ddiPts + piPts;
       const mult = game.goCount === 0 ? 1 : Math.pow(cfg.goMultBase, game.goCount);
@@ -1435,20 +2147,17 @@
       game.round = 1;
       game.money = 0;
       game.bossModifier = null;
-      game.perks = {
-        gwangReqDelta: 0,
-        yeolReqDelta: 0,
-        ddiReqDelta: 0,
-        piReqDelta: 0,
-        goMultBonus: 0,
-        extraHand: 0,
-        piFlatBonus: 0
-      };
-      game.relicNames = [];
-      startRound(1);
+      game.masterDeck = createInitialMasterDeck();
+      game.scoreUpgrades = { pi: 0, ddi: 0, yeol: 0, gwang: 0 };
+      game.dealerGift = null;
+      dom.giftModal.classList.add('hidden');
+      dom.shopModal.classList.add('hidden');
+      dom.deckModal.classList.add('hidden');
+      hideLeftSidebar();
+      startRound(1, { animatedDeal: true, sidebarMode: 'WITH_DEAL' });
     }
 
-    function startRound(roundNum) {
+    function startRound(roundNum, options = {}) {
       game.round = roundNum;
       const waveInfo = getWaveInfo(roundNum);
 
@@ -1469,22 +2178,39 @@
       }
       game.targetScore = baseTarget;
 
-      dealHand();
+      dealHand(options);
     }
 
-    function dealHand() {
+    function computeHandTargetCoords(idx, totalCount) {
+      const { w, h } = getCardRenderSize();
+      const centerX = viewW * 0.52;
+      const baseY = viewH - h * 0.46;
+      const maxArcAngle = Math.min(0.58, totalCount * 0.058);
+      const maxSpreadW = Math.min(viewW * 0.78, totalCount * (w * 0.76));
+      const t = totalCount === 1 ? 0 : (idx / (totalCount - 1)) * 2 - 1;
+      const angle = t * (maxArcAngle * 0.5);
+      const arcDrop = (t * t) * 26;
+      return {
+        x: centerX + t * (maxSpreadW * 0.5),
+        y: baseY + arcDrop,
+        angle
+      };
+    }
+
+    function dealHand(options = {}) {
+      const { animatedDeal = true, sidebarMode = 'KEEP' } = options;
+
       if (game.pendingEndTimer) {
         clearTimeout(game.pendingEndTimer);
         game.pendingEndTimer = null;
       }
-      game.deck = createShuffledDeck();
+      game.deck = createShuffledDeckFromMaster();
       game.tableCards = [];
       game.handCards = [];
       game.captured = [];
       game.goCount = 0;
       game.baseScoreAtLastGo = 0;
       game.lastTriggeredBase = 0;
-      game.phase = 'SELECT_HAND';
       game.selectedHandIdx = -1;
       game.drawnCard = null;
       game.animWatchdog = 0;
@@ -1495,9 +2221,18 @@
       game.shockwaves = [];
       game.impactTexts = [];
 
-      for (let i = 0; i < 8; i++) {
-        const slot = generateScatterSlot(game.tableCards);
-        game.tableCards.push({
+      dom.gostopModal.classList.add('hidden');
+      dom.roundModal.classList.add('hidden');
+      dom.giftModal.classList.add('hidden');
+      dom.shopModal.classList.add('hidden');
+      dom.deckModal.classList.add('hidden');
+
+      // 나눠줄 바닥패 & 손패 미리 결정
+      const plannedTable = [];
+      const tableDealCount = Math.min(8, game.deck.length);
+      for (let i = 0; i < tableDealCount; i++) {
+        const slot = generateScatterSlot(plannedTable);
+        plannedTable.push({
           card: game.deck.pop(),
           ...slot,
           scalePop: 1
@@ -1505,24 +2240,502 @@
       }
 
       const bossHandPenalty = game.bossModifier?.id === 'LESS_HAND' ? 2 : 0;
-      const handCount = Math.max(6, Math.min(14, 10 + game.perks.extraHand - bossHandPenalty));
-      for (let i = 0; i < handCount; i++) {
-        game.handCards.push({
+      const giftHandBonus = game.dealerGift?.id === 'EXTRA_HAND' ? 1 : 0;
+      const desiredHand = Math.max(6, Math.min(14, 10 + giftHandBonus - bossHandPenalty));
+      const actualHand = Math.min(desiredHand, game.deck.length);
+      const plannedHand = [];
+      for (let i = 0; i < actualHand; i++) {
+        plannedHand.push({
           card: game.deck.pop(),
           hoverAmt: 0,
           selectAmt: 0
         });
       }
-      game.handCards.sort((a, b) => a.card.month - b.card.month);
+      plannedHand.sort((a, b) => a.card.month - b.card.month);
 
-      dom.gostopModal.classList.add('hidden');
-      dom.roundModal.classList.add('hidden');
       syncLeftUI();
+
+      if (!animatedDeal) {
+        game.tableCards = plannedTable;
+        game.handCards = plannedHand;
+        game.phase = 'SELECT_HAND';
+        if (sidebarMode === 'AFTER_DEAL' || sidebarMode === 'WITH_DEAL') {
+          showLeftSidebar();
+        }
+        syncLeftUI();
+        return;
+      }
+
+      // 패를 나눠주며 동시에 옆 창이 서서히 생기는 경우 (상점 이후 등)
+      if (sidebarMode === 'WITH_DEAL') {
+        requestAnimationFrame(() => showLeftSidebar());
+      }
+
+      // 덱에서 한 장씩 날아가는 분배 큐 구성 (바닥패와 손패를 번갈아 분배)
+      const tasks = [];
+      const maxLen = Math.max(plannedTable.length, plannedHand.length);
+      for (let i = 0; i < maxLen; i++) {
+        if (i < plannedTable.length) {
+          tasks.push({ kind: 'TABLE', data: plannedTable[i] });
+        }
+        if (i < plannedHand.length) {
+          tasks.push({ kind: 'HAND', data: plannedHand[i], handIdx: i, totalHand: plannedHand.length });
+        }
+      }
+
+      game.phase = 'DEALING';
+      game.dealingAnim = {
+        tasks,
+        activeFlies: [],
+        spawnTimer: 0,
+        interval: 0.048,
+        tickCount: 0,
+        onAllDone: () => {
+          game.dealingAnim = null;
+          game.phase = 'SELECT_HAND';
+          // 메인 화면 진입 시: 패 분배가 끝난 직후 옆 창 페이드인!
+          if (sidebarMode === 'AFTER_DEAL') {
+            showLeftSidebar();
+          }
+          syncLeftUI();
+        }
+      };
     }
 
     /**
      * ============================================================================
-     * 3. 타격감 이펙트 생성기
+     * 3. 딜러의 선물(1슬롯 유물) 및 상점 / 덱 개조 시스템
+     * ============================================================================
+     */
+    function openDealerGiftModal(nextStage) {
+      game.pendingNextStage = nextStage;
+      dom.roundModal.classList.add('hidden');
+
+      if (game.dealerGift) {
+        dom.giftCurrentName.textContent = `${game.dealerGift.icon} ${game.dealerGift.name}`;
+        dom.giftCurrentDesc.textContent = game.dealerGift.desc;
+        dom.giftSkipBtn.textContent = '현재 선물 유지하고 상점으로 이동 →';
+      } else {
+        dom.giftCurrentName.textContent = '없음';
+        dom.giftCurrentDesc.textContent = '아래 선물 중 1개를 선택해 장착할 수 있습니다.';
+        dom.giftSkipBtn.textContent = '선택하지 않고 상점으로 이동 →';
+      }
+
+      const pool = DEALER_GIFTS.filter(g => g.id !== game.dealerGift?.id);
+      const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 3);
+
+      dom.giftChoices.innerHTML = '';
+      shuffled.forEach((gift) => {
+        const cardBtn = document.createElement('button');
+        cardBtn.type = 'button';
+        cardBtn.className = 'bg-slate-950 hover:bg-purple-950/50 border-2 border-purple-500/50 hover:border-purple-300 rounded-xl p-4 text-left flex flex-col justify-between gap-3 transition cursor-pointer group';
+        cardBtn.innerHTML = `
+          <div class="space-y-1.5">
+            <div class="text-2xl">${gift.icon}</div>
+            <div class="text-sm font-black text-white group-hover:text-purple-200">${gift.name}</div>
+            <div class="text-xs text-slate-300 leading-relaxed">${gift.desc}</div>
+          </div>
+          <div class="pt-2 border-t border-slate-800 text-center text-xs font-black text-purple-300">
+            ${game.dealerGift ? '이 선물로 교체하기' : '이 선물 장착하기'}
+          </div>
+        `;
+        cardBtn.onclick = () => {
+          game.dealerGift = gift;
+          sfx.playShopBuy();
+          syncLeftUI();
+          dom.giftModal.classList.add('hidden');
+          openShopModal(nextStage, `🎁 딜러의 선물 [${gift.name}] 장착 완료!`);
+        };
+        dom.giftChoices.appendChild(cardBtn);
+      });
+
+      dom.giftSkipBtn.onclick = () => {
+        dom.giftModal.classList.add('hidden');
+        openShopModal(nextStage);
+      };
+
+      dom.giftModal.classList.remove('hidden');
+    }
+
+    function rollRandomShopOffers() {
+      const chosen = [];
+      const available = [...RANDOM_SHOP_POOL];
+
+      while (chosen.length < 3 && available.length > 0) {
+        const totalWeight = available.reduce((acc, it) => acc + it.weight, 0);
+        let r = Math.random() * totalWeight;
+        let pickedIdx = 0;
+        for (let i = 0; i < available.length; i++) {
+          r -= available[i].weight;
+          if (r <= 0) {
+            pickedIdx = i;
+            break;
+          }
+        }
+        const [item] = available.splice(pickedIdx, 1);
+        chosen.push({
+          ...item,
+          sold: false
+        });
+      }
+      return chosen;
+    }
+
+    function showShopFeedback(msg, isError = false) {
+      dom.shopFeedback.textContent = msg;
+      dom.shopFeedback.className = isError
+        ? 'bg-rose-950/90 border border-rose-500/70 rounded-lg px-3 py-2 text-xs font-bold text-rose-200 text-center'
+        : 'bg-emerald-950/90 border border-emerald-500/60 rounded-lg px-3 py-2 text-xs font-bold text-emerald-200 text-center';
+      dom.shopFeedback.classList.remove('hidden');
+    }
+
+    function openShopModal(nextStage, initialBanner = '') {
+      game.pendingNextStage = nextStage;
+      game.shopRerollCost = 1000;
+      game.shopRandomOffers = rollRandomShopOffers();
+
+      dom.roundModal.classList.add('hidden');
+      dom.giftModal.classList.add('hidden');
+
+      // 상점 진입 시 좌측 상태창을 숨겨두어, 다음 라운드 시작 시 패 분배와 동시에 페이드인되도록 준비
+      hideLeftSidebar();
+
+      if (initialBanner) {
+        showShopFeedback(initialBanner, false);
+      } else {
+        dom.shopFeedback.classList.add('hidden');
+      }
+
+      renderShopUI();
+      dom.shopModal.classList.remove('hidden');
+    }
+
+    function getUpgradeCost(def) {
+      const lv = game.scoreUpgrades[def.key] || 0;
+      return def.baseCost + lv * def.stepCost;
+    }
+
+    function renderShopUI() {
+      dom.shopMoney.textContent = game.money.toLocaleString();
+      dom.shopDeckCount.textContent = game.masterDeck.length;
+      dom.shopRerollCost.textContent = game.shopRerollCost.toLocaleString();
+      dom.shopRerollBtn.disabled = game.money < game.shopRerollCost;
+
+      dom.shopUpgradesGrid.innerHTML = '';
+      UPGRADE_DEFS.forEach((def) => {
+        const lv = game.scoreUpgrades[def.key] || 0;
+        const curPts = def.basePts + lv;
+        const nextPts = curPts + 1;
+        const cost = getUpgradeCost(def);
+        const canAfford = game.money >= cost;
+
+        const colorMap = {
+          emerald: 'border-emerald-500/50 text-emerald-300 bg-emerald-950/30',
+          indigo: 'border-indigo-500/50 text-indigo-300 bg-indigo-950/30',
+          orange: 'border-orange-500/50 text-orange-300 bg-orange-950/30',
+          amber: 'border-amber-500/50 text-amber-300 bg-amber-950/30'
+        };
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.disabled = !canAfford;
+        btn.className = `rounded-xl border-2 p-3 text-left flex flex-col justify-between gap-2 transition cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed bg-slate-950 hover:bg-slate-900 ${colorMap[def.color]}`;
+        btn.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between text-xs font-black">
+              <span>${def.name}</span>
+              <span class="px-1.5 py-0.5 rounded bg-slate-900 text-[10px] text-white">Lv.${lv}</span>
+            </div>
+            <div class="text-xs text-slate-300 mt-1.5 font-bold">
+              달성 점수: <span class="text-white">${curPts}점</span> → <span class="text-amber-300">${nextPts}점</span>
+            </div>
+          </div>
+          <div class="pt-1.5 border-t border-slate-800 flex items-center justify-between text-xs font-black">
+            <span class="text-slate-400">강화 비용</span>
+            <span class="text-yellow-300">${cost.toLocaleString()}원</span>
+          </div>
+        `;
+        btn.onclick = () => {
+          if (game.money < cost) return;
+          game.money -= cost;
+          game.scoreUpgrades[def.key]++;
+          sfx.playShopBuy();
+          syncLeftUI();
+          showShopFeedback(`⬆️ ${def.name} 완료! 달성 기본 점수가 ${nextPts}점이 되었습니다.`);
+          renderShopUI();
+        };
+        dom.shopUpgradesGrid.appendChild(btn);
+      });
+
+      dom.shopRandomGrid.innerHTML = '';
+      game.shopRandomOffers.forEach((offer) => {
+        const canAfford = !offer.sold && game.money >= offer.cost;
+        const cardEl = document.createElement('div');
+        cardEl.className = `rounded-xl border-2 p-3.5 flex flex-col justify-between gap-2.5 bg-slate-950 ${
+          offer.sold ? 'border-slate-800 opacity-50' : 'border-slate-700'
+        }`;
+        cardEl.innerHTML = `
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-lg">${offer.icon} <span class="text-sm font-black text-white">${offer.name}</span></span>
+              <span class="text-[10px] font-black px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 ${offer.rarityColor}">${offer.rarity}</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">${offer.desc}</p>
+          </div>
+          <button type="button" ${(!canAfford || offer.sold) ? 'disabled' : ''}
+            class="w-full py-2 rounded-lg font-black text-xs border-b-2 transition cursor-pointer disabled:cursor-not-allowed ${
+              offer.sold
+                ? 'bg-slate-800 text-slate-500 border-slate-900'
+                : (canAfford
+                    ? 'bg-sky-500 hover:bg-sky-400 text-slate-950 border-sky-700'
+                    : 'bg-slate-800 text-slate-500 border-slate-900')
+            }">
+            ${offer.sold ? '구매 완료' : `${offer.cost.toLocaleString()}원 구매`}
+          </button>
+        `;
+        const buyBtn = cardEl.querySelector('button');
+        buyBtn.onclick = () => purchaseRandomOffer(offer);
+        dom.shopRandomGrid.appendChild(cardEl);
+      });
+    }
+
+    dom.shopRerollBtn.onclick = () => {
+      if (game.money < game.shopRerollCost) return;
+      game.money -= game.shopRerollCost;
+      game.shopRerollCost += 500;
+      game.shopRandomOffers = rollRandomShopOffers();
+      sfx.playCardSelect();
+      syncLeftUI();
+      showShopFeedback('🔄 특수 덱 개조 상품 목록을 새로고침했습니다.');
+      renderShopUI();
+    };
+
+    dom.shopViewDeckBtn.onclick = () => {
+      openDeckModal({
+        title: `내 덱 구성 확인 (총 ${game.masterDeck.length}장)`,
+        desc: '현재 덱에 들어 있는 모든 화투패입니다.',
+        selectable: false
+      });
+    };
+
+    // 상점을 지나 다음 라운드를 시작할 때: 패를 나눠주며 동시에 옆에 창이 서서히 페이드인
+    dom.shopNextRoundBtn.onclick = () => {
+      dom.shopModal.classList.add('hidden');
+      startRound(game.pendingNextStage, {
+        animatedDeal: true,
+        sidebarMode: 'WITH_DEAL'
+      });
+    };
+
+    function createRandomCardOfType(targetType) {
+      const pool = HWATU_SPECS.filter(s => s.type === targetType);
+      const picked = pool[Math.floor(Math.random() * pool.length)];
+      return {
+        uid: nextCardUid++,
+        month: picked.month,
+        type: picked.type,
+        label: picked.label,
+        art: picked.art,
+        piValue: 1
+      };
+    }
+
+    function createCompletelyRandomCard() {
+      const picked = HWATU_SPECS[Math.floor(Math.random() * HWATU_SPECS.length)];
+      return {
+        uid: nextCardUid++,
+        month: picked.month,
+        type: picked.type,
+        label: picked.label,
+        art: picked.art,
+        piValue: 1
+      };
+    }
+
+    function purchaseRandomOffer(offer) {
+      if (offer.sold || game.money < offer.cost) return;
+
+      if (offer.id === 'MAKE_PI' || offer.id === 'MAKE_DDI' || offer.id === 'MAKE_YEOL' || offer.id === 'MAKE_GWANG') {
+        const typeMap = {
+          MAKE_PI: '피',
+          MAKE_DDI: '띠',
+          MAKE_YEOL: '열끗',
+          MAKE_GWANG: '광'
+        };
+        const t = typeMap[offer.id];
+        const newCard = createRandomCardOfType(t);
+        game.money -= offer.cost;
+        offer.sold = true;
+        game.masterDeck.push(newCard);
+        sfx.playShopBuy();
+        syncLeftUI();
+        showShopFeedback(`✨ [${newCard.month}월 ${newCard.type}] 패 1장이 내 덱에 추가되었습니다! (총 ${game.masterDeck.length}장)`);
+        renderShopUI();
+        return;
+      }
+
+      if (offer.id === 'REMOVE_CARD') {
+        if (game.masterDeck.length <= 24) {
+          showShopFeedback('⚠️ 덱 최소 장수(24장) 이하로는 더 이상 패를 소각할 수 없습니다.', true);
+          return;
+        }
+        openDeckModal({
+          title: '🔥 소각할 패 1장 선택',
+          desc: '선택한 패 1장을 덱에서 영구적으로 제거합니다.',
+          selectable: true,
+          onSelect: (cardIdx) => {
+            const [removed] = game.masterDeck.splice(cardIdx, 1);
+            game.money -= offer.cost;
+            offer.sold = true;
+            sfx.playShopBuy();
+            syncLeftUI();
+            showShopFeedback(`🔥 [${removed.month}월 ${removed.type}] 패를 덱에서 영구 소각했습니다! (총 ${game.masterDeck.length}장)`);
+            renderShopUI();
+          }
+        });
+        return;
+      }
+
+      if (offer.id === 'UPGRADE_SSANGPI') {
+        const hasNormalPi = game.masterDeck.some(c => c.type === '피' && c.piValue !== 2);
+        if (!hasNormalPi) {
+          showShopFeedback('⚠️ 쌍피로 개조할 수 있는 일반 피가 덱에 없습니다.', true);
+          return;
+        }
+        openDeckModal({
+          title: '✨ 쌍피로 각인할 피 1장 선택',
+          desc: '일반 피 패를 선택하면 2장 가치로 계산되는 쌍피로 업그레이드됩니다.',
+          selectable: true,
+          filterFn: (c) => c.type === '피' && c.piValue !== 2,
+          onSelect: (cardIdx) => {
+            const target = game.masterDeck[cardIdx];
+            target.piValue = 2;
+            target.label = `${target.month}월 쌍피`;
+            game.money -= offer.cost;
+            offer.sold = true;
+            sfx.playShopBuy();
+            syncLeftUI();
+            showShopFeedback(`✨ [${target.month}월 피]가 2장 가치의 쌍피로 각인되었습니다!`);
+            renderShopUI();
+          }
+        });
+        return;
+      }
+
+      if (offer.id === 'TO_PI' || offer.id === 'TO_DDI' || offer.id === 'TO_YEOL' || offer.id === 'TO_GWANG') {
+        const typeMap = {
+          TO_PI: '피',
+          TO_DDI: '띠',
+          TO_YEOL: '열끗',
+          TO_GWANG: '광'
+        };
+        const targetType = typeMap[offer.id];
+        const hasCandidate = game.masterDeck.some(c => c.type !== targetType);
+        if (!hasCandidate) {
+          showShopFeedback(`⚠️ 이미 덱의 모든 패가 ${targetType}입니다.`, true);
+          return;
+        }
+        openDeckModal({
+          title: `${offer.icon} ${targetType}(으)로 변환할 패 1장 선택`,
+          desc: `선택한 패의 등급이 [${targetType}]으로 영구 변경됩니다.`,
+          selectable: true,
+          filterFn: (c) => c.type !== targetType,
+          onSelect: (cardIdx) => {
+            const target = game.masterDeck[cardIdx];
+            const oldLabel = `${target.month}월 ${target.type}`;
+            target.type = targetType;
+            target.piValue = 1;
+            target.label = `${target.month}월 ${targetType}`;
+            game.money -= offer.cost;
+            offer.sold = true;
+            sfx.playShopBuy();
+            syncLeftUI();
+            showShopFeedback(`${offer.icon} [${oldLabel}] 패가 [${target.month}월 ${targetType}](으)로 변환되었습니다!`);
+            renderShopUI();
+          }
+        });
+        return;
+      }
+
+      if (offer.id === 'RANDOMIZE_CARD') {
+        openDeckModal({
+          title: '🌀 혼돈의 변이를 적용할 패 1장 선택',
+          desc: '선택한 패를 완전히 무작위 화투패 1장으로 바꿉니다.',
+          selectable: true,
+          onSelect: (cardIdx) => {
+            const oldCard = game.masterDeck[cardIdx];
+            const replacement = createCompletelyRandomCard();
+            game.masterDeck[cardIdx] = replacement;
+            game.money -= offer.cost;
+            offer.sold = true;
+            sfx.playShopBuy();
+            syncLeftUI();
+            showShopFeedback(`🌀 [${oldCard.month}월 ${oldCard.type}] 패가 [${replacement.month}월 ${replacement.type}](으)로 변이했습니다!`);
+            renderShopUI();
+          }
+        });
+      }
+    }
+
+    function openDeckModal({ title, desc, selectable = false, filterFn = null, onSelect = null }) {
+      dom.deckModalTitle.textContent = title;
+      dom.deckModalDesc.textContent = desc;
+      dom.deckCardsGrid.innerHTML = '';
+
+      const indexed = game.masterDeck
+        .map((card, idx) => ({ card, idx }))
+        .sort((a, b) => a.card.month - b.card.month || a.card.uid - b.card.uid);
+
+      indexed.forEach(({ card, idx }) => {
+        const isEligible = !selectable || !filterFn || filterFn(card);
+        const sprite = getCardSprite(card);
+
+        const itemBtn = document.createElement('button');
+        itemBtn.type = 'button';
+        itemBtn.disabled = selectable && !isEligible;
+        itemBtn.className = `rounded-lg border-2 p-1.5 flex flex-col items-center gap-1 transition ${
+          selectable
+            ? (isEligible
+                ? 'bg-slate-950 hover:bg-sky-950/60 border-sky-500/60 hover:border-amber-300 cursor-pointer'
+                : 'bg-slate-950/40 border-slate-800 opacity-30 cursor-not-allowed')
+            : 'bg-slate-950 border-slate-800 cursor-default'
+        }`;
+
+        const thumb = document.createElement('canvas');
+        thumb.width = CARD_W;
+        thumb.height = CARD_H;
+        thumb.className = 'deck-thumb w-12 h-[74px] rounded-sm';
+        const tctx = thumb.getContext('2d');
+        tctx.imageSmoothingEnabled = false;
+        tctx.drawImage(sprite, 0, 0);
+
+        const label = document.createElement('div');
+        label.className = 'text-[10px] font-black text-slate-200 truncate w-full text-center';
+        label.textContent = `${card.month}월 ${card.type === '피' && card.piValue === 2 ? '쌍피' : card.type}`;
+
+        itemBtn.appendChild(thumb);
+        itemBtn.appendChild(label);
+
+        if (selectable && isEligible && onSelect) {
+          itemBtn.onclick = () => {
+            dom.deckModal.classList.add('hidden');
+            onSelect(idx);
+          };
+        }
+
+        dom.deckCardsGrid.appendChild(itemBtn);
+      });
+
+      dom.deckModal.classList.remove('hidden');
+    }
+
+    dom.deckModalCloseBtn.onclick = () => {
+      dom.deckModal.classList.add('hidden');
+    };
+
+    /**
+     * ============================================================================
+     * 4. 타격감 이펙트 생성기
      * ============================================================================
      */
     function spawnOverlapSparks(x, y, count = 20, isGwang = false) {
@@ -1580,7 +2793,7 @@
 
     /**
      * ============================================================================
-     * 4. 좌측 HTML UI 동기화
+     * 5. 좌측 HTML UI 동기화
      * ============================================================================
      */
     function renderGaugeRow(key, info, activeBg) {
@@ -1629,12 +2842,26 @@
 
     function syncLeftUI() {
       const ev = evaluateScore();
+      const cfg = ev.cfg;
       const waveInfo = getWaveInfo(game.round);
       const maxHands = getMaxHandsForCurrentRound();
       const pointRate = getCurrentPointRate();
 
       dom.money.textContent = game.money.toLocaleString();
       dom.pointRate.textContent = pointRate.toLocaleString();
+
+      if (game.dealerGift) {
+        dom.giftName.textContent = `${game.dealerGift.icon} ${game.dealerGift.name}`;
+        dom.giftDesc.textContent = game.dealerGift.desc;
+      } else {
+        dom.giftName.textContent = '없음 (보스 격파 시 획득)';
+        dom.giftDesc.textContent = '보스 라운드를 클리어하면 고유 유물을 받습니다.';
+      }
+
+      dom.ruleGwang.textContent = `달성 ${cfg.gwangBasePts}점 / +2`;
+      dom.ruleYeol.textContent = `달성 ${cfg.yeolBasePts}점 / +1`;
+      dom.ruleDdi.textContent = `달성 ${cfg.ddiBasePts}점 / +1`;
+      dom.rulePi.textContent = `달성 ${cfg.piBasePts}점 / +1`;
 
       if (waveInfo.isBoss) {
         dom.waveTag.textContent = `WAVE ${waveInfo.wave} · BOSS STAGE`;
@@ -1677,7 +2904,7 @@
 
     /**
      * ============================================================================
-     * 5. 캔버스 렌더링 & 좌표/히트박스 계산
+     * 6. 캔버스 렌더링 & 좌표/히트박스 계산
      * ============================================================================
      */
     const canvasWrapper = document.getElementById('canvas-wrapper');
@@ -1806,7 +3033,7 @@
 
     /**
      * ============================================================================
-     * 6. 수동 조작 입력 처리
+     * 7. 수동 조작 입력 처리
      * ============================================================================
      */
     function hitTestCard(px, py, cx, cy, w, h, angle) {
@@ -1835,6 +3062,11 @@
     });
 
     function updateHoverTargets() {
+      if (game.phase === 'TITLE' || game.phase === 'BLANKET_ROLL' || game.phase === 'DEALING') {
+        canvas.style.cursor = 'default';
+        return;
+      }
+
       const { w, h } = getCardRenderSize();
       game.hoveredHandIdx = -1;
       game.hoveredTableIdx = -1;
@@ -1849,7 +3081,6 @@
         }
       }
 
-      // 겹친 바닥패가 있을 경우 현재 선택/뽑힌 패와 같은 월(짝)을 최우선으로 인식
       const activeCard = getActiveCard();
       if (activeCard) {
         for (let i = game.tableCards.length - 1; i >= 0; i--) {
@@ -1904,12 +3135,10 @@
         return game.hoveredTableIdx;
       }
 
-      // 짝이 되는 바닥패가 1장뿐이면 테이블 영역 클릭 시 자동으로 해당 패에 매칭
       if (matchingIndices.length === 1) {
         return matchingIndices[0];
       }
 
-      // 여러 장(2장) 중 선택할 때는 마우스 위치와 가장 가까운 매칭 패 선택
       let closestIdx = matchingIndices[0];
       let minDist = Infinity;
       matchingIndices.forEach(idx => {
@@ -1930,7 +3159,13 @@
       game.mouseY = e.clientY - rect.top;
       updateHoverTargets();
 
-      if (game.phase === 'ANIMATING' || game.phase === 'MODAL') return;
+      if (
+        game.phase === 'TITLE' ||
+        game.phase === 'BLANKET_ROLL' ||
+        game.phase === 'DEALING' ||
+        game.phase === 'ANIMATING' ||
+        game.phase === 'MODAL'
+      ) return;
 
       if (game.phase === 'SELECT_HAND') {
         if (game.hoveredHandIdx >= 0) {
@@ -2237,7 +3472,7 @@
             dom.modalTitle.textContent = '판 종료 (0점)';
             dom.modalBody.innerHTML = `손패를 모두 사용했으나 문턱을 넘은 게이지가 없어 0점으로 종료되었습니다.<br/>남은 판수 <b class="text-sky-300">${game.handsLeft}판</b>으로 계속 도전합니다.`;
             dom.modalConfirmBtn.textContent = '다음 판 패 돌리기';
-            dom.modalConfirmBtn.onclick = () => dealHand();
+            dom.modalConfirmBtn.onclick = () => dealHand({ animatedDeal: true, sidebarMode: 'KEEP' });
           }
           dom.roundModal.classList.remove('hidden');
         }
@@ -2249,7 +3484,7 @@
 
     /**
      * ============================================================================
-     * 7. STOP 정산, 순수 초과 점수 머니 획득 & GO 실패 처리
+     * 8. STOP 정산, 라운드 클리어(딜러의 선물 / 상점 진입) & GO 실패 처리
      * ============================================================================
      */
     function confirmStopAndBank(isAutoEnd) {
@@ -2267,7 +3502,6 @@
       if (game.bankedScore >= game.targetScore) {
         const curWave = getWaveInfo(game.round);
         const nextStage = game.round + 1;
-        const nextWave = getWaveInfo(nextStage);
         const payout = calculateRoundPayout();
 
         game.money += payout.earnedMoney;
@@ -2278,6 +3512,13 @@
           ? `<b class="text-emerald-300">+${payout.overScore}점 초과</b>`
           : `<span class="text-slate-400">딱 맞춤 (0점 초과)</span>`;
 
+        const interestRowHtml = payout.interestBonus > 0
+          ? `<div class="flex justify-between">
+              <span class="text-purple-300">🎁 황금 저금통 이자 (20%)</span>
+              <span class="font-black text-purple-300">+${payout.interestBonus.toLocaleString()}원</span>
+            </div>`
+          : '';
+
         const payoutBoxHtml = `
           <div class="mt-2.5 pt-2.5 border-t border-slate-800 space-y-1 text-xs">
             <div class="flex justify-between">
@@ -2285,11 +3526,12 @@
               <span><b>${game.bankedScore}점</b> / ${game.targetScore}점 (${overText})</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-400">정산 계산</span>
+              <span class="text-slate-400">초과 정산</span>
               <span>초과 <b class="text-amber-300">${payout.overScore}점</b> × 점당 <b class="text-yellow-300">${payout.pointRate.toLocaleString()}원</b></span>
             </div>
+            ${interestRowHtml}
             <div class="flex justify-between items-baseline pt-1 text-sm">
-              <span class="font-bold text-slate-200">획득 정산금</span>
+              <span class="font-bold text-slate-200">총 획득 자금</span>
               <span class="font-black text-yellow-300 text-base">+${payout.earnedMoney.toLocaleString()}원</span>
             </div>
           </div>
@@ -2300,22 +3542,20 @@
           dom.modalBody.innerHTML = `
             이번 판에서 <b class="text-amber-300">+${gained}점</b>을 적립해 보스 라운드를 돌파했습니다!
             ${payoutBoxHtml}
+            <div class="pt-1 text-xs text-purple-300 font-bold">보스 격파 보상으로 [딜러의 선물]이 도착했습니다!</div>
           `;
-          dom.modalConfirmBtn.textContent = `WAVE ${nextWave.wave} 시작하기`;
+          dom.modalConfirmBtn.textContent = '🎁 딜러의 선물 확인하기';
+          dom.modalConfirmBtn.onclick = () => openDealerGiftModal(nextStage);
         } else {
-          const nextLabel = nextWave.isBoss
-            ? `<b class="text-rose-400">WAVE ${nextWave.wave} · 보스 라운드</b> (점당 2배!)`
-            : `<b class="text-sky-300">WAVE ${nextWave.wave} · 일반 라운드 ${nextWave.stepInWave}/3</b>`;
           dom.modalTitle.textContent = `일반 라운드 ${curWave.stepInWave}/3 클리어!`;
           dom.modalBody.innerHTML = `
             이번 판에서 <b class="text-amber-300">+${gained}점</b>을 적립해 라운드를 돌파했습니다!
             ${payoutBoxHtml}
-            <div class="pt-1 text-xs text-slate-400">다음 스테이지: ${nextLabel}</div>
           `;
-          dom.modalConfirmBtn.textContent = nextWave.isBoss ? '보스 라운드 입장' : '다음 라운드 진행';
+          dom.modalConfirmBtn.textContent = '🏮 상점 입장하기';
+          dom.modalConfirmBtn.onclick = () => openShopModal(nextStage);
         }
 
-        dom.modalConfirmBtn.onclick = () => startRound(nextStage);
         dom.roundModal.classList.remove('hidden');
       } else if (game.handsLeft <= 0) {
         sfx.playRoundFail();
@@ -2345,19 +3585,86 @@
           `;
         }
         dom.modalConfirmBtn.textContent = '다음 판 계속하기';
-        dom.modalConfirmBtn.onclick = () => dealHand();
+        dom.modalConfirmBtn.onclick = () => dealHand({ animatedDeal: true, sidebarMode: 'KEEP' });
         dom.roundModal.classList.remove('hidden');
       }
     }
 
     /**
      * ============================================================================
-     * 8. 메인 게임 루프
+     * 9. 메인 게임 루프 (초록 담요 전개 + 패 분배 연출 포함)
      * ============================================================================
      */
     let lastTime = performance.now();
 
     function update(dt) {
+      if (game.phase === 'TITLE') return;
+
+      // 1단계: 초록색 담요가 깔리는 모션
+      if (game.phase === 'BLANKET_ROLL') {
+        game.blanketProgress += dt / 0.65;
+        if (game.blanketProgress >= 1) {
+          game.blanketProgress = 1;
+          const cb = game.blanketOnComplete;
+          game.blanketOnComplete = null;
+          if (cb) cb();
+        }
+        return;
+      }
+
+      // 2단계: 덱에서 바닥패와 손패로 한 장씩 분배되는 모션
+      if (game.phase === 'DEALING' && game.dealingAnim) {
+        const da = game.dealingAnim;
+        da.spawnTimer += dt;
+        const deckPos = getDeckPosition();
+
+        while (da.tasks.length > 0 && da.spawnTimer >= da.interval) {
+          da.spawnTimer -= da.interval;
+          const task = da.tasks.shift();
+          sfx.playDealTick(da.tickCount++);
+
+          let ex, ey, eRot;
+          if (task.kind === 'TABLE') {
+            ex = task.data.xRatio * viewW;
+            ey = task.data.yRatio * viewH;
+            eRot = task.data.angle;
+          } else {
+            const hc = computeHandTargetCoords(task.handIdx, task.totalHand);
+            ex = hc.x;
+            ey = hc.y;
+            eRot = hc.angle;
+          }
+
+          da.activeFlies.push({
+            task,
+            sx: deckPos.x,
+            sy: deckPos.y,
+            ex,
+            ey,
+            eRot,
+            progress: 0,
+            duration: 0.18
+          });
+        }
+
+        for (let i = da.activeFlies.length - 1; i >= 0; i--) {
+          const fly = da.activeFlies[i];
+          fly.progress += dt / fly.duration;
+          if (fly.progress >= 1) {
+            if (fly.task.kind === 'TABLE') {
+              game.tableCards.push(fly.task.data);
+            } else {
+              game.handCards.push(fly.task.data);
+            }
+            da.activeFlies.splice(i, 1);
+          }
+        }
+
+        if (da.tasks.length === 0 && da.activeFlies.length === 0) {
+          if (da.onAllDone) da.onAllDone();
+        }
+      }
+
       if (game.hitStopTimer > 0) {
         game.hitStopTimer -= dt;
         return;
@@ -2409,7 +3716,6 @@
         }
       }
 
-      // ANIMATING 상태가 비정상적으로 고착될 경우 자동 복구
       if (
         game.phase === 'ANIMATING' &&
         !game.flyingCard &&
@@ -2451,15 +3757,11 @@
       }
     }
 
-    function render() {
+    function drawGreenBlanketSurface(heightLimit) {
       ctx.save();
-
-      if (game.shakeTimer > 0) {
-        const mag = game.shakeIntensity * (game.shakeTimer / 0.24);
-        const sx = (Math.random() - 0.5) * 2 * mag;
-        const sy = (Math.random() - 0.5) * 2 * mag;
-        ctx.translate(sx, sy);
-      }
+      ctx.beginPath();
+      ctx.rect(-20, -20, viewW + 40, heightLimit + 20);
+      ctx.clip();
 
       if (feltPattern) {
         ctx.fillStyle = feltPattern;
@@ -2468,6 +3770,13 @@
         ctx.fillStyle = '#0f4c2e';
         ctx.fillRect(0, 0, viewW, viewH);
       }
+
+      // 담요 외곽 도트 금실 테두리
+      ctx.strokeStyle = 'rgba(234, 179, 8, 0.24)';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([10, 6]);
+      ctx.strokeRect(14, 14, viewW - 28, viewH - 28);
+      ctx.setLineDash([]);
 
       const grad = ctx.createRadialGradient(viewW * 0.52, viewH * 0.45, viewW * 0.15, viewW * 0.52, viewH * 0.45, viewW * 0.72);
       grad.addColorStop(0, 'rgba(0,0,0,0)');
@@ -2483,12 +3792,65 @@
       ctx.stroke();
       ctx.setLineDash([]);
 
+      ctx.restore();
+    }
+
+    function render() {
+      ctx.save();
+
+      // 어두운 나무 바닥 베이스
+      ctx.fillStyle = '#090706';
+      ctx.fillRect(0, 0, viewW, viewH);
+
+      if (game.phase === 'TITLE') {
+        ctx.restore();
+        return;
+      }
+
+      // 초록 담요가 깔리는 모션 중일 때
+      if (game.phase === 'BLANKET_ROLL') {
+        const t = Math.min(1, game.blanketProgress);
+        const ease = 1 - Math.pow(1 - t, 3);
+        const curH = viewH * ease;
+
+        drawGreenBlanketSurface(curH);
+
+        // 말려 내려가는 담요의 입체 도트 롤(Roll) 그림자 & 하이라이트
+        if (t < 1) {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+          ctx.fillRect(0, curH, viewW, 14);
+          ctx.fillStyle = '#15803d';
+          ctx.fillRect(0, Math.max(0, curH - 8), viewW, 8);
+          ctx.fillStyle = '#22c55e';
+          ctx.fillRect(0, Math.max(0, curH - 6), viewW, 2);
+        }
+
+        ctx.restore();
+        return;
+      }
+
+      if (game.shakeTimer > 0) {
+        const mag = game.shakeIntensity * (game.shakeTimer / 0.24);
+        const sx = (Math.random() - 0.5) * 2 * mag;
+        const sy = (Math.random() - 0.5) * 2 * mag;
+        ctx.translate(sx, sy);
+      }
+
+      // 초록 담요 전체 렌더링
+      drawGreenBlanketSurface(viewH);
+
       const { w, h } = getCardRenderSize();
       const activeCard = getActiveCard();
 
+      // 덱 더미 (분배 중에는 남은 예약 카드 수까지 포함해 자연스럽게 줄어들도록 표시)
+      const pendingDealCount = (game.phase === 'DEALING' && game.dealingAnim)
+        ? game.dealingAnim.tasks.length
+        : 0;
+      const visualDeckCount = game.deck.length + pendingDealCount;
+
       const deckPos = getDeckPosition();
-      const stackLayers = Math.min(8, Math.ceil(game.deck.length / 4));
-      if (game.deck.length > 0) {
+      const stackLayers = Math.min(8, Math.ceil(visualDeckCount / 4));
+      if (visualDeckCount > 0) {
         for (let s = 0; s < stackLayers; s++) {
           const offset = (stackLayers - s) * 2;
           drawCardEntity(
@@ -2517,9 +3879,10 @@
         ctx.font = 'bold 11px "Noto Sans KR", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`덱 ${game.deck.length}장`, deckPos.x, deckPos.y + deckPos.h * 0.5 + 16);
+        ctx.fillText(`덱 ${visualDeckCount}장`, deckPos.x, deckPos.y + deckPos.h * 0.5 + 16);
       }
 
+      // 바닥패 렌더링
       game.tableCards.forEach((tc, idx) => {
         const tx = tc.xRatio * viewW;
         const ty = tc.yRatio * viewH;
@@ -2539,12 +3902,12 @@
           h * tc.scalePop,
           tc.angle,
           {
-            highlightColor: hlColor,
-            matchTag: isMatch && (game.phase === 'PLACE_HAND' || game.phase === 'PLACE_DRAWN')
+            highlightColor: hlColor
           }
         );
       });
 
+      // 덱에서 뽑아 공중에 띄운 패
       if (game.phase === 'PLACE_DRAWN' && game.drawnCard) {
         const fp = getDrawnFloatPosition();
         const bobY = Math.sin(performance.now() * 0.008) * 4;
@@ -2570,6 +3933,7 @@
         ctx.fillText('뽑힌 패 (배치)', fp.x, fp.y - h * 0.68 + 9 + bobY);
       }
 
+      // 손패 렌더링
       const handTransforms = getHandCardTransforms();
       handTransforms.forEach((ht) => {
         const item = game.handCards[ht.idx];
@@ -2595,6 +3959,22 @@
           }
         );
       });
+
+      // 패 분배 중 날아가는 카드들 렌더링
+      if (game.phase === 'DEALING' && game.dealingAnim) {
+        game.dealingAnim.activeFlies.forEach((fly) => {
+          const t = Math.min(1, fly.progress);
+          const ease = 1 - Math.pow(1 - t, 3);
+          const cx = fly.sx + (fly.ex - fly.sx) * ease;
+          const cy = fly.sy + (fly.ey - fly.sy) * ease - Math.sin(t * Math.PI) * 32;
+          const rot = fly.eRot * ease + (1 - ease) * -0.25;
+          const cardObj = fly.task.data.card;
+
+          drawCardEntity(cardObj, cx, cy, w, h, rot, {
+            elevated: true
+          });
+        });
+      }
 
       if (game.flyingCard) {
         const fc = game.flyingCard;
@@ -2721,7 +4101,7 @@
 
     window.onload = function () {
       resizeCanvas();
-      initRun();
+      titleArtController.start();
       requestAnimationFrame(loop);
     };
   </script>
