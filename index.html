@@ -1273,14 +1273,14 @@
             z-index: 1;
         }
         .die-face.die-skin-clockwork_gem .pip-player {
-            background: radial-gradient(circle at 30% 25%, #fff9dc 0%, #fff0b0 28%, #3c2610 72%, #1d1208 100%);
-            border: 1px solid #fff1bd;
-            box-shadow: 0 0 5px rgba(255, 230, 155, 0.9), inset 0 1px 1px rgba(255,255,255,0.7);
+            background: radial-gradient(circle at 32% 25%, #5b4528 0%, #24180d 55%, #090705 100%);
+            border: 1.5px solid #fff0c1;
+            box-shadow: 0 0 0 1px rgba(42, 25, 8, 0.85), 0 1px 3px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.22);
         }
         .die-face.die-skin-clockwork_gem .pip-ai {
-            background: radial-gradient(circle at 30% 25%, #fff0d2 0%, #e7b65d 30%, #713b16 72%, #321b0a 100%);
-            border: 1px solid #ffe0a0;
-            box-shadow: 0 0 5px rgba(231, 182, 93, 0.82), inset 0 1px 1px rgba(255,255,255,0.55);
+            background: radial-gradient(circle at 32% 25%, #fffdf4 0%, #f7f0dc 58%, #d4c6a8 100%);
+            border: 1.5px solid #4a2c0d;
+            box-shadow: 0 0 0 1px rgba(255, 239, 190, 0.75), 0 1px 3px rgba(0,0,0,0.65), inset 0 1px 1px rgba(255,255,255,0.9);
         }
 
         /* 고정 주사위 테두리 우선 적용에 신규 스킨 포함 */
@@ -2279,8 +2279,8 @@
         }
         /* 시계태엽 마스코트는 트레이 안에서 전신이 보이도록 별도 세로 공간 확보 */
         body.layout-pad_pc .mascot-clockwork {
-            min-height: 238px;
-            flex: 0 0 238px;
+            min-height: 306px;
+            flex: 0 0 306px;
             margin-bottom: 4px;
         }
         .mascot-clockwork .manta-svg-wrap {
@@ -2293,7 +2293,7 @@
         .mascot-clockwork svg {
             display: block;
             width: min(100%, 218px);
-            height: 232px;
+            height: 300px;
             overflow: visible;
         }
 
@@ -2917,55 +2917,49 @@
                     <!-- 황금 시계태엽 보드 + 패드·컴퓨터 전용: 전신 시계태엽 바니걸 마스코트 -->
                     <div class="tray-mascot-banner mascot-clockwork" aria-hidden="true">
                         <div class="manta-svg-wrap">
-                            <svg width="218" height="232" viewBox="0 0 218 232" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="황금 태엽 궁전의 애니메이션풍 바니걸 마스코트">
+                            <svg width="218" height="300" viewBox="0 0 218 300" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="긴 머리와 검은 바니걸 의상의 슬림한 애니메이션풍 마스코트">
                                 <defs>
-                                    <linearGradient id="cwSuit" x1="109" y1="82" x2="109" y2="190" gradientUnits="userSpaceOnUse"><stop stop-color="#303034"/><stop offset=".45" stop-color="#111216"/><stop offset="1" stop-color="#050609"/></linearGradient>
-                                    <linearGradient id="cwSkin" x1="75" y1="70" x2="145" y2="220" gradientUnits="userSpaceOnUse"><stop stop-color="#fff0df"/><stop offset=".55" stop-color="#f0cdb8"/><stop offset="1" stop-color="#d9a991"/></linearGradient>
-                                    <linearGradient id="cwWhite" x1="109" y1="65" x2="109" y2="105" gradientUnits="userSpaceOnUse"><stop stop-color="#fffefa"/><stop offset="1" stop-color="#d9d5d0"/></linearGradient>
-                                    <linearGradient id="cwGold" x1="55" y1="20" x2="168" y2="210" gradientUnits="userSpaceOnUse"><stop stop-color="#fff1b6"/><stop offset=".48" stop-color="#d8aa52"/><stop offset="1" stop-color="#805019"/></linearGradient>
-                                    <radialGradient id="cwFace" cx="0" cy="0" r="1" gradientTransform="translate(109 57) rotate(90) scale(29 23)" gradientUnits="userSpaceOnUse"><stop stop-color="#fff8ee"/><stop offset="1" stop-color="#edc8b4"/></radialGradient>
+                                    <linearGradient id="cwHair" x1="70" y1="30" x2="151" y2="270" gradientUnits="userSpaceOnUse"><stop stop-color="#292832"/><stop offset=".48" stop-color="#111119"/><stop offset="1" stop-color="#05060a"/></linearGradient>
+                                    <linearGradient id="cwSuit" x1="109" y1="95" x2="109" y2="230" gradientUnits="userSpaceOnUse"><stop stop-color="#292a31"/><stop offset=".42" stop-color="#111217"/><stop offset="1" stop-color="#030407"/></linearGradient>
+                                    <linearGradient id="cwSkin" x1="78" y1="90" x2="145" y2="290" gradientUnits="userSpaceOnUse"><stop stop-color="#fff1e5"/><stop offset=".55" stop-color="#efcbb8"/><stop offset="1" stop-color="#dba991"/></linearGradient>
+                                    <linearGradient id="cwWhite" x1="109" y1="76" x2="109" y2="120" gradientUnits="userSpaceOnUse"><stop stop-color="#fffefa"/><stop offset="1" stop-color="#d8d3ce"/></linearGradient>
+                                    <linearGradient id="cwGold" x1="60" y1="20" x2="160" y2="260" gradientUnits="userSpaceOnUse"><stop stop-color="#fff0b4"/><stop offset=".5" stop-color="#d2a34b"/><stop offset="1" stop-color="#805019"/></linearGradient>
+                                    <radialGradient id="cwFace" cx="0" cy="0" r="1" gradientTransform="translate(109 65) rotate(90) scale(31 24)" gradientUnits="userSpaceOnUse"><stop stop-color="#fff9f2"/><stop offset="1" stop-color="#edc8b5"/></radialGradient>
                                 </defs>
-                                <!-- faint clockwork halo -->
-                                <circle cx="109" cy="121" r="94" stroke="#d6a84f" stroke-width="1.5" stroke-dasharray="3 6" opacity=".48"/>
-                                <circle cx="109" cy="121" r="86" stroke="#f6d889" stroke-width=".8" opacity=".22"/>
-                                <g transform="translate(35 139)" opacity=".78"><circle r="15" stroke="url(#cwGold)" stroke-width="3"/><circle r="5" fill="#d6a84f"/><path d="M0 -21V-15M0 15V21M-21 0H-15M15 0H21M-15 -15L-11 -11M11 11L15 15M15 -15L11 -11M-11 11L-15 15" stroke="#e6bd68" stroke-width="3" stroke-linecap="round"/></g>
-                                <g transform="translate(184 90) scale(.72)" opacity=".68"><circle r="15" stroke="url(#cwGold)" stroke-width="3"/><circle r="5" fill="#d6a84f"/><path d="M0 -21V-15M0 15V21M-21 0H-15M15 0H21M-15 -15L-11 -11M11 11L15 15M15 -15L11 -11M-11 11L-15 15" stroke="#e6bd68" stroke-width="3" stroke-linecap="round"/></g>
-                                <!-- long bunny ears -->
-                                <path d="M91 39C77 18 70 2 78 1C91 -1 101 20 105 39Z" fill="#19191d" stroke="url(#cwGold)" stroke-width="2.2"/>
-                                <path d="M116 39C119 18 131 1 140 6C149 12 136 31 124 43Z" fill="#19191d" stroke="url(#cwGold)" stroke-width="2.2"/>
-                                <path d="M87 31C79 17 78 9 81 8C86 8 93 24 97 34Z" fill="#b96d78" opacity=".85"/>
-                                <path d="M124 34C130 20 138 11 141 13C144 17 134 31 127 38Z" fill="#b96d78" opacity=".85"/>
-                                <!-- head and anime face -->
-                                <path d="M83 55C83 39 95 29 109 29C124 29 136 40 135 56C134 75 124 87 109 87C94 87 83 73 83 55Z" fill="url(#cwFace)" stroke="#bd8b50" stroke-width="1.8"/>
-                                <path d="M83 53C84 37 96 29 109 29C101 38 99 45 98 54C94 49 88 49 83 53Z" fill="#29252a"/>
-                                <path d="M109 29C124 29 135 40 135 54C130 49 124 46 119 45C117 38 113 33 109 29Z" fill="#29252a"/>
-                                <path d="M91 59Q98 53 104 60" stroke="#49323a" stroke-width="2.2" stroke-linecap="round"/><path d="M115 60Q122 53 128 59" stroke="#49323a" stroke-width="2.2" stroke-linecap="round"/>
-                                <ellipse cx="99" cy="62" rx="3.3" ry="5" fill="#52765e"/><ellipse cx="121" cy="62" rx="3.3" ry="5" fill="#52765e"/><circle cx="100" cy="60" r="1.2" fill="white"/><circle cx="122" cy="60" r="1.2" fill="white"/>
-                                <ellipse cx="91" cy="70" rx="5" ry="2.2" fill="#df8f91" opacity=".45"/><ellipse cx="129" cy="70" rx="5" ry="2.2" fill="#df8f91" opacity=".45"/><path d="M106 73Q109 76 112 73" stroke="#a95f68" stroke-width="1.5" stroke-linecap="round"/>
-                                <circle cx="109" cy="34" r="5" fill="url(#cwGold)" stroke="#805019" stroke-width="1.2"/>
-                                <!-- neck and broad white angular collar, like the reference costume -->
-                                <path d="M100 83L109 94L118 83L123 92L109 109L95 92Z" fill="url(#cwWhite)" stroke="#b8a98f" stroke-width="1.4"/>
-                                <path d="M96 91L77 82L42 89L61 116L92 109L109 119L126 109L157 116L176 89L141 82L122 91L109 101Z" fill="url(#cwWhite)" stroke="#c8bba8" stroke-width="1.7" stroke-linejoin="round"/>
-                                <path d="M78 87L61 109L91 103L109 115L127 103L157 109L140 87" stroke="#fff" stroke-width="1.5" opacity=".8"/>
-                                <!-- black bow tie -->
-                                <path d="M105 96L92 90Q87 91 91 101L105 104Z" fill="#17171b" stroke="#9b783e" stroke-width="1"/><path d="M113 96L126 90Q131 91 127 101L113 104Z" fill="#17171b" stroke="#9b783e" stroke-width="1"/><circle cx="109" cy="98" r="4" fill="url(#cwGold)" stroke="#76501b" stroke-width="1"/>
-                                <!-- fitted black bunny leotard -->
-                                <path d="M88 109Q98 104 109 108Q120 104 130 109L140 157Q136 176 126 185L109 191L92 185Q82 176 78 157Z" fill="url(#cwSuit)" stroke="url(#cwGold)" stroke-width="1.8"/>
-                                <path d="M94 112Q109 119 124 112" stroke="#565158" stroke-width="1.2" opacity=".7"/>
-                                <path d="M109 111V180" stroke="#b58a45" stroke-width=".9" opacity=".5"/>
-                                <!-- arms and white cuffs -->
-                                <path d="M87 114Q76 121 69 140L61 154Q58 161 64 164Q70 166 74 158L91 133" fill="url(#cwSkin)" stroke="#bd8b50" stroke-width="1.5"/>
-                                <path d="M131 114Q142 121 149 140L157 154Q160 161 154 164Q148 166 144 158L127 133" fill="url(#cwSkin)" stroke="#bd8b50" stroke-width="1.5"/>
-                                <path d="M59 151L72 157L68 166L55 160Z" fill="url(#cwWhite)" stroke="#b8a98f" stroke-width="1.2"/><path d="M146 157L159 151L163 160L150 166Z" fill="url(#cwWhite)" stroke="#b8a98f" stroke-width="1.2"/>
-                                <!-- leotard lower silhouette -->
-                                <path d="M82 166Q109 177 136 166L129 190Q109 202 89 190Z" fill="url(#cwSuit)" stroke="url(#cwGold)" stroke-width="1.8"/>
-                                <path d="M89 187Q109 197 129 187L122 202Q109 210 96 202Z" fill="#090a0d" stroke="#b58a45" stroke-width="1.2"/>
-                                <!-- legs, full length -->
-                                <path d="M96 201Q101 205 108 205L105 222Q104 232 97 232Q90 230 91 222Z" fill="url(#cwSkin)" stroke="#bd8b50" stroke-width="1.2"/>
-                                <path d="M111 205Q118 205 122 201L127 222Q128 230 121 232Q114 232 114 222Z" fill="url(#cwSkin)" stroke="#bd8b50" stroke-width="1.2"/>
-                                <path d="M91 223Q98 226 105 223L105 229Q99 233 91 230Z" fill="#211d1d" stroke="url(#cwGold)" stroke-width="1.2"/><path d="M114 223Q121 226 127 223L128 230Q120 233 114 229Z" fill="#211d1d" stroke="url(#cwGold)" stroke-width="1.2"/>
-                                <!-- tiny gold waist chain and pocket watch -->
-                                <path d="M132 145Q149 154 151 174" stroke="#e7c36f" stroke-width="1.5" stroke-dasharray="2 2"/><circle cx="151" cy="181" r="7" fill="#f8e7b5" stroke="#9a681f" stroke-width="1.7"/><circle cx="151" cy="181" r="4.5" stroke="#d3a54d" stroke-width=".8"/><path d="M151 181V178M151 181L154 183" stroke="#674114" stroke-width="1" stroke-linecap="round"/>
+                                <!-- long hair flowing behind the body -->
+                                <path d="M79 65Q57 84 62 132L54 204Q57 235 72 263L88 241L92 157L126 157L133 244L151 269Q170 232 163 190L155 111Q160 72 139 54Z" fill="url(#cwHair)" stroke="#9b7842" stroke-width="1.4"/>
+                                <path d="M75 93Q67 152 73 207Q76 237 84 251M145 91Q153 150 147 210Q145 238 137 254" stroke="#77717f" stroke-width="2" opacity=".55" stroke-linecap="round"/>
+                                <!-- slim bunny ears -->
+                                <path d="M91 43Q70 7 79 4Q92 0 104 43Z" fill="#17171e" stroke="url(#cwGold)" stroke-width="2"/>
+                                <path d="M116 43Q126 5 139 8Q148 13 126 47Z" fill="#17171e" stroke="url(#cwGold)" stroke-width="2"/>
+                                <path d="M87 34Q78 13 82 12Q88 13 97 37M124 37Q135 16 140 17Q141 23 129 41" fill="#a95f70" opacity=".8"/>
+                                <!-- face and long fringe -->
+                                <path d="M84 62Q84 38 109 36Q135 37 135 64Q135 91 109 96Q83 91 84 62Z" fill="url(#cwFace)" stroke="#bd8b50" stroke-width="1.4"/>
+                                <path d="M83 61Q80 38 101 34Q126 26 138 51Q126 44 118 45Q104 47 96 60Q91 54 83 61Z" fill="url(#cwHair)"/>
+                                <path d="M91 59Q99 53 105 60M114 60Q121 53 128 59" stroke="#49323a" stroke-width="2" stroke-linecap="round"/>
+                                <ellipse cx="99" cy="64" rx="3.5" ry="5.5" fill="#52765e"/><ellipse cx="121" cy="64" rx="3.5" ry="5.5" fill="#52765e"/><circle cx="100" cy="62" r="1.3" fill="white"/><circle cx="122" cy="62" r="1.3" fill="white"/>
+                                <ellipse cx="91" cy="74" rx="5" ry="2.2" fill="#df8f91" opacity=".42"/><ellipse cx="128" cy="74" rx="5" ry="2.2" fill="#df8f91" opacity=".42"/><path d="M106 80Q109 82 112 80" stroke="#a95f68" stroke-width="1.4" stroke-linecap="round"/>
+                                <circle cx="109" cy="39" r="4.5" fill="url(#cwGold)" stroke="#805019" stroke-width="1"/>
+                                <!-- neck and wide angular white collar -->
+                                <path d="M100 91L109 105L118 91L123 101L109 119L95 101Z" fill="url(#cwWhite)" stroke="#b8a98f" stroke-width="1.2"/>
+                                <path d="M98 98L80 93L59 99L72 122L94 116L109 127L124 116L146 122L159 99L138 93L120 98L109 109Z" fill="url(#cwWhite)" stroke="#c8bba8" stroke-width="1.5" stroke-linejoin="round"/>
+                                <path d="M104 108L94 103Q89 104 93 113L105 117ZM114 108L124 103Q129 104 125 113L113 117Z" fill="#17171b" stroke="#8e713f" stroke-width="1"/><circle cx="109" cy="111" r="3.5" fill="url(#cwGold)"/>
+                                <!-- slender arms -->
+                                <path d="M82 119Q74 133 70 154L65 178Q64 185 70 186Q75 186 77 178L91 139" fill="url(#cwSkin)" stroke="#bd8b50" stroke-width="1.2"/>
+                                <path d="M136 119Q144 133 148 154L153 178Q154 185 148 186Q143 186 141 178L127 139" fill="url(#cwSkin)" stroke="#bd8b50" stroke-width="1.2"/>
+                                <path d="M63 174L77 176L75 187L62 185ZM141 176L155 174L156 185L143 187Z" fill="url(#cwWhite)" stroke="#b8a98f" stroke-width="1"/>
+                                <!-- narrow waist, defined hips, fitted black bunny suit -->
+                                <path d="M89 119Q109 127 129 119C137 132 140 150 134 164Q130 177 127 190Q131 202 142 215Q130 230 109 232Q88 230 76 215Q87 202 91 190Q88 177 84 164C78 150 81 132 89 119Z" fill="url(#cwSuit)" stroke="url(#cwGold)" stroke-width="1.5"/>
+                                <path d="M91 143Q109 151 127 143M93 190Q109 196 125 190" stroke="#68616a" stroke-width="1.1" opacity=".55" fill="none"/>
+                                <path d="M109 124V198" stroke="#786044" stroke-width=".8" opacity=".45"/>
+                                <!-- long bare legs, separated silhouette, fully visible -->
+                                <path d="M83 215Q96 224 106 229L101 260Q98 281 92 290Q86 294 82 287Q80 281 84 266L78 231Z" fill="url(#cwSkin)" stroke="#bd8b50" stroke-width="1.2"/>
+                                <path d="M112 229Q122 224 135 215L140 231L134 266Q138 281 136 287Q132 294 126 290Q120 281 117 260Z" fill="url(#cwSkin)" stroke="#bd8b50" stroke-width="1.2"/>
+                                <!-- black heels -->
+                                <path d="M82 282Q89 289 96 282L98 291Q91 297 80 294L76 291Z" fill="#111116" stroke="url(#cwGold)" stroke-width="1.2"/>
+                                <path d="M122 282Q129 289 136 282L142 291L138 294Q127 297 120 291Z" fill="#111116" stroke="url(#cwGold)" stroke-width="1.2"/>
+                                <!-- restrained pocket-watch accent, no wing-like ornaments -->
+                                <path d="M132 145Q146 156 145 176" stroke="#e7c36f" stroke-width="1.3" stroke-dasharray="2 2"/><circle cx="145" cy="182" r="6" fill="#f8e7b5" stroke="#9a681f" stroke-width="1.4"/><path d="M145 182V179M145 182L148 184" stroke="#674114" stroke-width="1" stroke-linecap="round"/>
                             </svg>
                         </div>
                     </div>
