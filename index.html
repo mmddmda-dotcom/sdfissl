@@ -2518,6 +2518,18 @@
             padding: 16px;
         }
 
+        .modal-card.restart-dialog {
+            position: fixed;
+            inset: 0;
+            margin: auto;
+            width: min(360px, calc(100% - 32px));
+            color: #f3e8d2;
+        }
+        .restart-dialog::backdrop { background: rgba(10, 5, 2, 0.82); }
+        .restart-dialog h2 { font-size: 17px; color: #f3d078; }
+        .restart-dialog p { margin: 8px 0 16px; line-height: 1.5; }
+        .restart-dialog form { display: flex; justify-content: flex-end; gap: 8px; }
+
         .coin-stage { perspective: 900px; margin-bottom: 16px; }
         .coin-3d { width: 108px; height: 108px; position: relative; transform-style: preserve-3d; }
         .coin-face {
@@ -2990,6 +3002,15 @@
     </div>
 
     <!-- 승패 결과 모달 -->
+    <dialog id="restart-dialog" class="modal-card restart-dialog" aria-labelledby="restart-title" aria-describedby="restart-message">
+        <h2 id="restart-title">새 게임을 시작할까요?</h2>
+        <p id="restart-message"></p>
+        <form method="dialog">
+            <button type="submit" class="ui-btn ui-btn-gold" value="yes">예</button>
+            <button type="submit" class="ui-btn" value="no" autofocus>아니오</button>
+        </form>
+    </dialog>
+
     <div id="gameover-modal" class="overlay-backdrop hidden">
         <div class="modal-card" style="text-align:center;">
             <div id="result-trophy" style="font-size:46px;margin-bottom:6px;">🏆</div>
@@ -4098,12 +4119,12 @@
                 id: 'pure_gold',
                 name: '24K 순금 금박 주사위',
                 desc: '실제 금괴를 깎아 만든 듯한 강렬한 메탈릭 반사광의 순금 주사위',
-                conditionLabel: '타짜 모드 7연승 달성',
+                conditionLabel: '타짜 모드 7승 달성',
                 checkUnlock: (stats) => {
-                    const progress = Math.max(stats.tazza.maxStreak || 0, stats.tazza.streak || 0);
+                    const wins = stats.tazza.wins || 0;
                     return {
-                        unlocked: progress >= 7,
-                        progressText: progress >= 7 ? '해금 완료' : `타짜 ${Math.min(progress, 7)}/7연승`
+                        unlocked: wins >= 7,
+                        progressText: wins >= 7 ? '해금 완료' : `타짜 ${Math.min(wins, 7)}/7승`
                     };
                 }
             },
@@ -4165,12 +4186,12 @@
                 id: 'northern_aurora',
                 name: '북극의 밤 오로라 보드',
                 desc: '에메랄드와 보랏빛 오로라 커튼이 일렁이고 별빛이 반짝이는 몽환적인 밤하늘 보드',
-                conditionLabel: '타짜 모드 승리 5회 달성',
+                conditionLabel: '타짜 모드 2승 달성',
                 checkUnlock: (stats) => {
-                    const tazzaWins = stats.tazza.wins || 0;
+                    const wins = stats.tazza.wins || 0;
                     return {
-                        unlocked: tazzaWins >= 5,
-                        progressText: tazzaWins >= 5 ? '해금 완료' : `타짜 ${Math.min(tazzaWins, 5)}/5승`
+                        unlocked: wins >= 2,
+                        progressText: wins >= 2 ? '해금 완료' : `타짜 ${Math.min(wins, 2)}/2승`
                     };
                 }
             },
@@ -4178,12 +4199,12 @@
                 id: 'pure_gold',
                 name: '24K 순금 제왕 보드',
                 desc: '압연 순금판의 묵직한 금속 광택과 황금 왕관 문장이 빛나는 순금 보드',
-                conditionLabel: '일반 모드 7연승 달성',
+                conditionLabel: '일반 모드 7승 달성',
                 checkUnlock: (stats) => {
-                    const progress = Math.max(stats.normal.maxStreak || 0, stats.normal.streak || 0);
+                    const wins = stats.normal.wins || 0;
                     return {
-                        unlocked: progress >= 7,
-                        progressText: progress >= 7 ? '해금 완료' : `일반 ${Math.min(progress, 7)}/7연승`
+                        unlocked: wins >= 7,
+                        progressText: wins >= 7 ? '해금 완료' : `일반 ${Math.min(wins, 7)}/7승`
                     };
                 }
             },
@@ -5729,7 +5750,32 @@
             document.getElementById('btn-reroll').addEventListener('click', handlePlayerReroll);
             document.getElementById('btn-pick-before').addEventListener('click', () => handlePickRerollOption(false));
             document.getElementById('btn-pick-after').addEventListener('click', () => handlePickRerollOption(true));
-            document.getElementById('btn-new-game').addEventListener('click', startNewGame);
+            const restartDialog = document.getElementById('restart-dialog');
+            function restartGame() {
+                if (state.phase !== 'gameover') {
+                    const modeStats = state.stats[state.activeAiMode];
+                    if (modeStats.streak > 0) {
+                        modeStats.streak = 0;
+                        saveStats();
+                    }
+                }
+                startNewGame();
+            }
+
+            document.getElementById('btn-new-game').addEventListener('click', () => {
+                const streak = state.stats[state.activeAiMode].streak;
+                if (state.phase !== 'gameover' && streak >= 7) {
+                    document.getElementById('restart-message').textContent =
+                        `새 게임을 시작하면 현재 ${streak}연승 기록이 초기화됩니다.`;
+                    restartDialog.returnValue = '';
+                    restartDialog.showModal();
+                    return;
+                }
+                restartGame();
+            });
+            restartDialog.addEventListener('close', () => {
+                if (restartDialog.returnValue === 'yes') restartGame();
+            });
             document.getElementById('btn-modal-rematch').addEventListener('click', startNewGame);
 
             document.getElementById('btn-bgm').addEventListener('click', () => {
@@ -5858,6 +5904,7 @@
             });
 
             window.addEventListener('keydown', (e) => {
+                if (restartDialog.open) return;
                 if (e.key === 'Escape') {
                     rulesModal.classList.add('hidden');
                     statsModal.classList.add('hidden');
