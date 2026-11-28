@@ -2657,6 +2657,26 @@
         dialog.front-card:not([open]) { display:none; }
         dialog.front-card::backdrop { background:#0009; }
         .online-game :is(.ai-mode-switcher,#streak-badge,#btn-new-game,#btn-stats,#ai-mini-die-box) {display:none !important;}
+    
+        #home-screen { position:fixed; inset:0; overflow:auto; z-index:20;
+            background:radial-gradient(ellipse at 50% 33%,#193d43,#0a1b25 65%,#060e17);
+            color-scheme:dark; }
+        #home-screen .front-card { width:min(100%,460px); gap:18px; padding:clamp(24px,7vw,48px);
+            background:#0c1d28; border:1px solid #9c7a4a; border-radius:24px;
+            box-shadow:0 24px 70px #0008,inset 0 0 0 6px #0c1d28,inset 0 0 0 7px #8b724045; }
+        #home-screen h1 { color:#ffe2aa; font-size:clamp(2.5rem,10vw,4rem); line-height:1.05; }
+        #home-screen h1 span { display:block; margin-top:12px; font-size:.35em; letter-spacing:.2em; }
+        #home-screen .title-die { justify-self:center; display:grid; grid-template:repeat(3,1fr)/repeat(3,1fr);
+            place-items:center; width:68px; height:68px; padding:7px; margin:10px; transform:rotate(-13deg);
+            border:2px solid #ffdd93; border-radius:15px; background:#cba164; box-shadow:6px 8px 0 #574024; }
+        .title-die i { width:9px; height:9px; border-radius:50%; background:#1b2630; }
+        .title-die i:nth-child(2){ grid-area:1/3; } .title-die i:nth-child(3){ grid-area:2/2; }
+        .title-die i:nth-child(4){ grid-area:3/1; } .title-die i:nth-child(5){ grid-area:3/3; }
+        #home-screen button { font:inherit; font-weight:800; min-height:49px; color:#fae2ad;
+            background:#142d3a; border:1px solid #997846; border-radius:12px; }
+        #home-screen button:first-of-type { margin-top:12px; color:#17232c; background:#e9c37e; }
+        .online-game #btn-skins { display:none !important; }
+        #gameover-modal .ai-mode-switcher { display:flex; justify-content:center; margin-bottom:12px; }
     </style>
 </head>
 <body class="layout-pad_pc board-skin-walnut_velvet">
@@ -2700,7 +2720,8 @@
     <!-- 메인 앱 셸 -->
     
     <main id="home-screen" class="front-screen"><section class="front-card">
-        <h1>티카투카<br>운명의 주사위</h1>
+        <div class="title-die" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <h1>티카투카<span>운명의 주사위</span></h1>
         <button id="open-single" class="ui-btn ui-btn-gold">싱글플레이</button>
         <button id="open-online" class="ui-btn">멀티플레이</button>
     </section></main>
@@ -2708,7 +2729,7 @@
         <h2>멀티플레이</h2>
         <button id="create-room" class="ui-btn ui-btn-gold">방 만들기</button>
         <form id="join-room">
-            <input id="join-code" aria-label="방 코드" placeholder="8자리 방 코드" maxlength="8" autocomplete="off" hidden>
+            <input id="join-code" aria-label="방 코드" placeholder="네 자리 방 코드" inputmode="numeric" maxlength="4" autocomplete="off" hidden>
             <button class="ui-btn">참가하기</button>
         </form>
         <p id="online-message" role="status"></p>
@@ -2719,9 +2740,17 @@
         <p>방 코드</p><strong id="room-code"></strong>
         <button id="room-copy" class="ui-btn">코드 복사</button>
         <p id="room-status" role="status"></p>
+        <button id="room-skins" class="ui-btn">스킨</button>
+        <button id="room-ready" class="ui-btn ui-btn-gold" hidden>레디</button>
         <button id="room-start" class="ui-btn ui-btn-gold" disabled>게임 시작</button>
         <button id="room-leave" class="ui-btn">나가기</button>
     </section></main>
+    <dialog id="resume-dialog" class="front-card" aria-labelledby="resume-title">
+        <h2 id="resume-title">진행 중인 게임이 있어요</h2>
+        <p id="resume-copy">이어서 할까요, 처음부터 할까요?</p>
+        <button id="resume-yes" class="ui-btn ui-btn-gold">이어서 하기</button>
+        <button id="resume-no" class="ui-btn">처음부터 하기</button>
+    </dialog>
     <dialog id="game-settings" class="front-card">
         <h2>설정</h2>
                 <div class="layout-switcher" role="group" aria-label="화면 비율 선택">
@@ -2870,11 +2899,7 @@
                 <div class="faction-bar faction-ai">
                     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                         <span>🎭 상대</span>
-                        <div class="ai-mode-switcher" role="group" aria-label="AI 난이도 전환" title="게임 중 변경 시 다음 게임부터 적용됩니다">
-                            <button type="button" id="btn-ai-normal" class="ai-mode-btn active-normal" data-ai-mode="normal">🤖 일반</button>
-                            <button type="button" id="btn-ai-tazza" class="ai-mode-btn" data-ai-mode="tazza">🃏 타짜</button>
-                        </div>
-                        <span id="ai-queued-badge" class="ai-queued-badge hidden">다음 판: 타짜</span>
+
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span id="ai-turn-status" style="font-size:10.5px;color:#fecdd3;">대기 중</span>
@@ -3066,9 +3091,15 @@
             <h2 id="result-title" style="font-size:23px;font-weight:900;color:#f3d078;margin-bottom:4px;">승리!</h2>
             <p id="result-subtitle" style="font-size:13px;color:#d6c5a9;margin-bottom:14px;">3개 열 중 2개 열을 점령했습니다!</p>
             <div id="result-lanes-summary" style="display:flex;flex-direction:column;gap:6px;background:#160c07;border:1px solid rgba(200,150,62,0.35);border-radius:12px;padding:10px;margin-bottom:16px;"></div>
+            <p>다음 판 난이도</p>
+            <div class="ai-mode-switcher" role="group" aria-label="AI 난이도 전환">
+                            <button type="button" id="btn-ai-normal" class="ai-mode-btn active-normal" data-ai-mode="normal">🤖 일반</button>
+                            <button type="button" id="btn-ai-tazza" class="ai-mode-btn" data-ai-mode="tazza">🃏 타짜</button>
+                        </div>
             <button type="button" id="btn-modal-rematch" class="btn-roll-main" style="width:100%;padding:11px;">
                 🪙 코인 토스로 한 판 더!
             </button>
+            <button id="result-home" class="ui-btn" style="margin-top:10px">메인메뉴로 나가기</button>
         </div>
     </div>
 
@@ -4509,6 +4540,7 @@
         }
 
         function handleSelectSkinCard(skinType, skinId, cardEl) {
+            if (match && match.status !== 'waiting') return;
             const toastEl = document.getElementById('skin-toast-msg');
             const catalog = skinType === 'dice' ? DICE_SKIN_CATALOG : BOARD_SKIN_CATALOG;
             const unlockedList = skinType === 'dice' ? state.skins.unlockedDice : state.skins.unlockedBoard;
@@ -5361,19 +5393,10 @@
 
             const btnNormal = document.getElementById('btn-ai-normal');
             const btnTazza = document.getElementById('btn-ai-tazza');
-            const queuedBadge = document.getElementById('ai-queued-badge');
-            if (btnNormal && btnTazza) {
-                btnNormal.classList.toggle('active-normal', state.queuedAiMode === 'normal');
-                btnTazza.classList.toggle('active-tazza', state.queuedAiMode === 'tazza');
-            }
-            if (queuedBadge) {
-                if (state.queuedAiMode !== state.activeAiMode) {
-                    queuedBadge.textContent = `다음 판: ${state.queuedAiMode === 'tazza' ? '타짜' : '일반'}`;
-                    queuedBadge.classList.remove('hidden');
-                } else {
-                    queuedBadge.classList.add('hidden');
-                }
-            }
+            btnNormal.classList.toggle('active-normal', state.queuedAiMode === 'normal');
+            btnTazza.classList.toggle('active-tazza', state.queuedAiMode === 'tazza');
+            btnNormal.setAttribute('aria-pressed', state.queuedAiMode === 'normal');
+            btnTazza.setAttribute('aria-pressed', state.queuedAiMode === 'tazza');
 
             const isPlayerTurn = state.phase.startsWith('player_');
             const isAiTurn = state.phase === 'ai_turn' || state.phase === 'online_other';
@@ -5809,12 +5832,12 @@
             });
         }
 
-        function resumeRound() {
+        function readSavedRound() {
             let saved;
             try {
                 saved = JSON.parse(localStorage.getItem(ROUND_KEY));
             } catch (e) {
-                return false;
+                return null;
             }
             const phases = ['player_wait_roll', 'player_place', 'player_reroll_choose',
                 'player_bonus_wait_roll', 'player_bonus_place', 'coin_ai_first', 'ai_turn', 'ai_finish'];
@@ -5823,8 +5846,13 @@
                     column.every(die => Number.isInteger(die?.value) && die.value >= 1 && die.value <= 6));
             const validMode = mode => mode === 'normal' || mode === 'tazza';
             if (!saved || !phases.includes(saved.phase) || !validBoard(saved.playerBoard) ||
-                !validBoard(saved.aiBoard) || !validMode(saved.activeAiMode) || !validMode(saved.queuedAiMode)) return false;
+                !validBoard(saved.aiBoard) || !validMode(saved.activeAiMode) || !validMode(saved.queuedAiMode)) return null;
 
+            return saved;
+        }
+
+        function resumeRound(saved = readSavedRound()) {
+            if (!saved) return false;
             const { aiSeed, ...round } = saved;
             roundCheckpoint = saved;
             Object.assign(state, round);
@@ -5884,13 +5912,6 @@
                     const mode = btn.dataset.aiMode === 'tazza' ? 'tazza' : 'normal';
                     state.queuedAiMode = mode;
 
-                    const isBoardEmpty = state.playerBoard.every(c => c.length === 0) && state.aiBoard.every(c => c.length === 0);
-                    if ((isBoardEmpty && state.phase !== 'ai_turn') || state.phase === 'gameover') {
-                        state.activeAiMode = mode;
-                    }
-                    if (roundCheckpoint) {
-                        writeRound({ ...roundCheckpoint, queuedAiMode: mode, activeAiMode: state.activeAiMode });
-                    }
                     renderAll();
                 });
             });
@@ -6103,6 +6124,7 @@
         let match = null;
         let onlineBusy = false;
         let leavePending = false;
+        let offerOnlineResume = false;
         let onlineTicket = null;
         let inGame = false;
 
@@ -6133,6 +6155,10 @@
         function exitOnline(message = '') {
             match = null;
             sessionStorage.removeItem(ticketKey);
+            const stored = JSON.parse(localStorage.getItem(ticketKey) || 'null');
+            if (stored?.ticket === onlineTicket) localStorage.removeItem(ticketKey);
+            offerOnlineResume = false;
+            byId('resume-dialog').close();
             state.gameSessionId++;
             state.isAnimating = false;
             state.currentDie = null;
@@ -6153,17 +6179,34 @@
                 return;
             }
             match = next;
-            sessionStorage.setItem(ticketKey, JSON.stringify({ code: next.code, ticket: onlineTicket }));
+            const savedSession = JSON.stringify({ code: next.code, ticket: onlineTicket });
+            sessionStorage.setItem(ticketKey, savedSession);
+            localStorage.setItem(ticketKey, savedSession);
             if (next.status === 'waiting') {
+                offerOnlineResume = false;
                 showScreen('room-screen');
                 byId('room-code').textContent = next.code;
                 byId('room-start').hidden = next.seat !== 0;
                 byId('room-start').disabled = !next.ready;
-                byId('room-status').textContent = !next.ready ? '친구를 기다리는 중'
-                    : next.seat === 0 ? '친구가 참가했어요.' : '방장이 시작하기를 기다리는 중';
+                byId('room-ready').hidden = next.seat === 0;
+                byId('room-ready').textContent = next.ready ? '레디 취소' : '레디';
+                byId('room-status').textContent = !next.joined ? '친구를 기다리는 중'
+                    : next.ready ? (next.seat === 0 ? '친구가 준비됐어요.' : '방장이 시작하기를 기다리는 중')
+                    : (next.seat === 0 ? '친구가 레디를 누르기를 기다리는 중' : '준비되면 레디를 눌러 주세요.');
                 return;
             }
+            if (offerOnlineResume && next.status === 'playing') {
+                askToResume(() => {
+                    offerOnlineResume = false;
+                    const latest = match;
+                    match = null;
+                    syncMatch(latest);
+                }, () => onlineAction('leave'));
+                return;
+            }
+            offerOnlineResume = false;
             if (previous?.game?.version === next.game.version && previous.status === next.status) return;
+            byId('skins-modal').classList.add('hidden');
 
             const { game, seat, skins } = next;
             const decodeBoard = index => game.boards[index].map(column => {
@@ -6214,16 +6257,21 @@
             }
             onlineBusy = true;
             try {
+                if (['poll','ready','start'].includes(action)) payload = { ...payload, skin: state.skins.equippedDice };
                 const next = await roomRequest(action, payload, code);
                 if (action === 'leave') exitOnline();
-                else await syncMatch(next);
+                else if (typeof next.joined !== 'boolean') {
+                    if (action === 'create') await roomRequest('leave', {}, next.code);
+                    onlineMessage('Supabase에 최신 멀티플레이 설정을 적용해 주세요.');
+                } else await syncMatch(next);
             } catch (error) {
                 const messages = {
                     SETUP: 'Supabase 연결이 필요해요.',
                     NO_ROOM: '방을 찾을 수 없어요. 코드를 확인해 주세요.',
                     ROOM_FULL: '이미 두 사람이 참가했어요.',
                     STALE: '상대와 게임 상태를 맞추는 중이에요.',
-                    INVALID: '지금은 그 칸에 놓을 수 없어요.'
+                    INVALID: '지금은 그 칸에 놓을 수 없어요.',
+                    ALL_ROOMS_BUSY: '사용할 수 있는 방 코드가 없어요. 잠시 뒤 다시 시도해 주세요.'
                 };
                 const message = messages[error.message] || '연결할 수 없어요. 잠시 뒤 다시 시도해 주세요.';
                 if (action === 'leave' || (action === 'poll' && error.message === 'NO_ROOM')) exitOnline(message);
@@ -6246,26 +6294,54 @@
             return onlineAction('move', { move, version: match.game.version, ...extra });
         }
 
+        function askToResume(resume, restart, copy = '이어서 할까요, 처음부터 할까요?') {
+            const dialog = byId('resume-dialog');
+            if (dialog.open) return;
+            byId('resume-copy').textContent = copy;
+            byId('resume-yes').onclick = () => { dialog.close(); resume(); };
+            byId('resume-no').onclick = () => { dialog.close(); restart(); };
+            dialog.showModal();
+        }
+
+        function returnToHome() {
+            if (match) return onlineAction('leave');
+            state.gameSessionId++;
+            state.isAnimating = false;
+            byId('gameover-modal').classList.add('hidden');
+            byId('cointoss-overlay').classList.add('hidden');
+            audio.stopMusicBoxBgm();
+            inGame = false;
+            showScreen('home-screen');
+        }
+
         function bindNavigation() {
+            byId('resume-dialog').addEventListener('cancel', event => event.preventDefault());
             byId('open-single').onclick = () => {
-                showScreen('app');
-                inGame = true;
-                audio.init();
-                if (!resumeRound()) startNewGame();
+                const saved = readSavedRound();
+                const enter = resume => {
+                    showScreen('app');
+                    inGame = true;
+                    audio.init();
+                    if (resume && resumeRound(saved)) return;
+                    if (saved) {
+                        breakWinStreak(saved.activeAiMode);
+                        state.queuedAiMode = saved.queuedAiMode;
+                    }
+                    startNewGame();
+                };
+                if (saved) askToResume(() => enter(true), () => enter(false),
+                    state.stats[saved.activeAiMode].streak > 0
+                        ? '처음부터 하면 진행 중인 판과 현재 연승 기록이 초기화돼요.'
+                        : '이어서 할까요, 처음부터 할까요?');
+                else enter(false);
             };
             byId('open-online').onclick = () => showScreen('online-screen');
             byId('online-back').onclick = () => showScreen('home-screen');
             byId('open-settings').onclick = () => byId('game-settings').showModal();
-            byId('return-home').onclick = () => {
-                byId('game-settings').close();
-                if (match) return onlineAction('leave');
-                state.gameSessionId++;
-                state.isAnimating = false;
-                byId('cointoss-overlay').classList.add('hidden');
-                audio.stopMusicBoxBgm();
-                inGame = false;
-                showScreen('home-screen');
-            };
+            byId('return-home').onclick = () => { byId('game-settings').close(); returnToHome(); };
+            byId('result-home').onclick = returnToHome;
+            byId('room-skins').onclick = () => byId('btn-skins').click();
+            byId('room-ready').onclick = () => { if (match) onlineAction('ready', { ready: !match.ready }); };
             byId('online-result-home').onclick = () => onlineAction('leave');
             byId('room-leave').onclick = () => onlineAction('leave');
             byId('room-start').onclick = () => onlineAction('start');
@@ -6292,21 +6368,23 @@
                     return;
                 }
                 if (onlineBusy) return;
-                const code = input.value.trim().toUpperCase();
-                if (!/^[0-9A-F]{8}$/.test(code)) return onlineMessage('8자리 방 코드를 입력해 주세요.');
+                const code = input.value.trim();
+                if (!/^\d{4}$/.test(code)) return onlineMessage('네 자리 숫자 방 코드를 입력해 주세요.');
                 onlineTicket = crypto.randomUUID();
                 onlineAction('join', { skin: state.skins.equippedDice }, code);
             };
-            const saved = sessionStorage.getItem(ticketKey);
+            const saved = sessionStorage.getItem(ticketKey) || localStorage.getItem(ticketKey);
             if (saved && onlineConfig.url && onlineConfig.key) {
                 try {
                     const { ticket, code } = JSON.parse(saved);
                     onlineTicket = ticket;
+                    offerOnlineResume = true;
                     onlineAction('poll', {}, code);
                 } catch {
                     sessionStorage.removeItem(ticketKey);
                 }
             }
+            if (!saved && readSavedRound()) byId('open-single').click();
             setInterval(() => { if (match) onlineAction('poll'); }, 900);
         }
 
