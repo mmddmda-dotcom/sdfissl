@@ -4067,6 +4067,7 @@
            ============================================================================ */
         const STATS_KEY = 'tika_tuka_mode_stats_v7';
         const SKINS_KEY = 'tika_tuka_ocean_skins_v2';
+        const ACTIVE_ROUND_KEY = 'tika_tuka_active_round_v7';
 
         const DICE_SKIN_CATALOG = [
             {
@@ -5693,12 +5694,39 @@
             }
 
             renderAll();
+            saveActiveRound(null);
             document.getElementById('gameover-modal').classList.remove('hidden');
+        }
+
+        function saveActiveRound(mode) {
+            try {
+                if (mode) sessionStorage.setItem(ACTIVE_ROUND_KEY, mode);
+                else sessionStorage.removeItem(ACTIVE_ROUND_KEY);
+            } catch (e) {}
+        }
+
+        function breakWinStreak(mode) {
+            if (mode !== 'normal' && mode !== 'tazza') return;
+            const modeStats = state.stats[mode];
+            if (modeStats.streak <= 0) return;
+            modeStats.streak = 0;
+            saveStats();
+        }
+
+        function checkInterruptedRound() {
+            let previousMode;
+            try {
+                previousMode = sessionStorage.getItem(ACTIVE_ROUND_KEY);
+            } catch (e) {
+                return;
+            }
+            breakWinStreak(previousMode);
         }
 
         function startNewGame() {
             state.gameSessionId++;
             state.activeAiMode = state.queuedAiMode;
+            saveActiveRound(state.activeAiMode);
             state.playerBoard = [[], [], []];
             state.aiBoard = [[], [], []];
             state.phase = 'coin_toss';
@@ -5736,6 +5764,7 @@
                     const isBoardEmpty = state.playerBoard.every(c => c.length === 0) && state.aiBoard.every(c => c.length === 0);
                     if (isBoardEmpty || state.phase === 'gameover') {
                         state.activeAiMode = mode;
+                        if (state.phase !== 'gameover') saveActiveRound(mode);
                     }
                     renderAll();
                 });
@@ -5752,13 +5781,7 @@
             document.getElementById('btn-pick-after').addEventListener('click', () => handlePickRerollOption(true));
             const restartDialog = document.getElementById('restart-dialog');
             function restartGame() {
-                if (state.phase !== 'gameover') {
-                    const modeStats = state.stats[state.activeAiMode];
-                    if (modeStats.streak > 0) {
-                        modeStats.streak = 0;
-                        saveStats();
-                    }
-                }
+                if (state.phase !== 'gameover') breakWinStreak(state.activeAiMode);
                 startNewGame();
             }
 
@@ -5955,6 +5978,7 @@
             applyLayoutMode(detectDefaultLayoutMode());
             loadStats();
             loadSkins();
+            checkInterruptedRound();
             bindEvents();
             startNewGame();
         }
