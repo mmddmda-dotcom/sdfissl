@@ -2643,6 +2643,20 @@
             --die-finish: linear-gradient(145deg, #fff2bf61, transparent 35%, transparent 70%, #72511f49);
         }
         .die-face.die-skin-clockwork_gem::before { opacity: .42; }
+    
+        [hidden] { display: none !important; }
+        .front-screen { min-height:100dvh; display:grid; place-items:center; padding:18px; }
+        .front-card { width:min(100%,400px); display:grid; gap:14px; text-align:center; padding:26px;
+            color:#f7e6bd; background:#26190f; border:1px solid #a67d47; border-radius:16px; }
+        .front-card h1,.front-card h2,.front-card p { margin:0; }
+        .front-card .ui-btn { min-height:44px; }
+        .front-card form { display:grid; gap:10px; }
+        #room-code { font-size:1.9rem; letter-spacing:.13em; user-select:all; }
+        #join-code { width:100%; padding:10px; text-align:center; font:inherit; text-transform:uppercase; }
+        dialog.front-card { margin:auto; max-width:calc(100vw - 36px); }
+        dialog.front-card:not([open]) { display:none; }
+        dialog.front-card::backdrop { background:#0009; }
+        .online-game :is(.ai-mode-switcher,#streak-badge,#btn-new-game,#btn-stats,#ai-mini-die-box) {display:none !important;}
     </style>
 </head>
 <body class="layout-pad_pc board-skin-walnut_velvet">
@@ -2684,7 +2698,47 @@
     </div>
 
     <!-- 메인 앱 셸 -->
-    <div id="app" class="app-shell">
+    
+    <main id="home-screen" class="front-screen"><section class="front-card">
+        <h1>티카투카<br>운명의 주사위</h1>
+        <button id="open-single" class="ui-btn ui-btn-gold">싱글플레이</button>
+        <button id="open-online" class="ui-btn">멀티플레이</button>
+    </section></main>
+    <main id="online-screen" class="front-screen" hidden><section class="front-card">
+        <h2>멀티플레이</h2>
+        <button id="create-room" class="ui-btn ui-btn-gold">방 만들기</button>
+        <form id="join-room">
+            <input id="join-code" aria-label="방 코드" placeholder="8자리 방 코드" maxlength="8" autocomplete="off" hidden>
+            <button class="ui-btn">참가하기</button>
+        </form>
+        <p id="online-message" role="status"></p>
+        <button id="online-back" class="ui-btn">뒤로</button>
+    </section></main>
+    <main id="room-screen" class="front-screen" hidden><section class="front-card">
+        <h2>대기실</h2>
+        <p>방 코드</p><strong id="room-code"></strong>
+        <button id="room-copy" class="ui-btn">코드 복사</button>
+        <p id="room-status" role="status"></p>
+        <button id="room-start" class="ui-btn ui-btn-gold" disabled>게임 시작</button>
+        <button id="room-leave" class="ui-btn">나가기</button>
+    </section></main>
+    <dialog id="game-settings" class="front-card">
+        <h2>설정</h2>
+                <div class="layout-switcher" role="group" aria-label="화면 비율 선택">
+                    <button type="button" class="layout-opt-btn" data-layout-mode="phone">📱 핸드폰</button>
+                    <button type="button" class="layout-opt-btn active" data-layout-mode="pad_pc">📟 패드·컴퓨터</button>
+                </div>
+
+        <button type="button" id="btn-bgm" class="ui-btn">배경음악 켜기</button>
+        <button type="button" id="btn-sound" class="ui-btn">효과음 끄기</button>
+        <button id="return-home" class="ui-btn">메인화면으로 돌아가기</button>
+        <form method="dialog"><button class="ui-btn">닫기</button></form>
+    </dialog>
+    <dialog id="online-result" class="front-card">
+        <h2 id="online-result-text"></h2>
+        <button id="online-result-home" class="ui-btn">메인화면으로 돌아가기</button>
+    </dialog>
+    <div id="app" class="app-shell" hidden>
 
         <!-- 1. 상단 헤더 바 -->
         <header class="top-header">
@@ -2695,15 +2749,10 @@
             </div>
 
             <div class="header-actions">
-                <div class="layout-switcher" role="group" aria-label="화면 비율 선택">
-                    <button type="button" class="layout-opt-btn" data-layout-mode="phone">📱 핸드폰</button>
-                    <button type="button" class="layout-opt-btn active" data-layout-mode="pad_pc">📟 패드·컴퓨터</button>
-                </div>
+                <button id="open-settings" type="button" class="ui-btn">⚙ 설정</button>
                 <button type="button" id="btn-skins" class="ui-btn ui-btn-skin">🎨 스킨</button>
                 <button type="button" id="btn-rules" class="ui-btn">📖 규칙 설명</button>
                 <button type="button" id="btn-stats" class="ui-btn">📊 전적</button>
-                <button type="button" id="btn-bgm" class="ui-btn" title="오르골 배경음악 토글">🎵</button>
-                <button type="button" id="btn-sound" class="ui-btn" title="효과음 토글">🔊</button>
                 <button type="button" id="btn-new-game" class="ui-btn ui-btn-gold">↻ 새 게임</button>
             </div>
         </header>
@@ -4031,7 +4080,7 @@
             const val = Math.max(1, Math.min(6, Number(dieObj.value) || 1));
             const isFixed = Boolean(dieObj.fixed);
             const fixedSide = dieObj.fixedOwner || owner;
-            const activeSkin = overrideSkinId || (state && state.skins ? state.skins.equippedDice : 'classic_white');
+            const activeSkin = overrideSkinId || DICE_SKIN_CATALOG.find(skin => skin.id === dieObj.onlineSkin)?.id || (state && state.skins ? state.skins.equippedDice : 'classic_white');
 
             let styleClass = 'die-face';
             if (activeSkin && activeSkin !== 'classic_white') {
@@ -4744,6 +4793,7 @@
            7. 플레이어 액션 핸들러
            ============================================================================ */
         async function handlePlayerRoll(isBonus = false) {
+            if (match) return onlineMove('roll');
             const expectedPhase = isBonus ? 'player_bonus_wait_roll' : 'player_wait_roll';
             if (state.phase !== expectedPhase || state.isAnimating) return;
 
@@ -4769,6 +4819,7 @@
         }
 
         async function handlePlayerReroll() {
+            if (match) return onlineMove('reroll');
             if (state.phase !== 'player_place' || state.rerollsLeft <= 0 || state.isAnimating) return;
 
             const savedBeforeDie = state.currentDie;
@@ -4799,6 +4850,7 @@
         }
 
         function handlePickRerollOption(chooseAfter) {
+            if (match) return onlineMove(chooseAfter ? 'after' : 'before');
             if (state.phase !== 'player_reroll_choose' || state.isAnimating) return;
             state.currentDie = chooseAfter ? state.rerollAfterDie : state.rerollBeforeDie;
             state.rerollBeforeDie = null;
@@ -4810,6 +4862,10 @@
         }
 
         async function handleBoardColumnClick(side, colIdx) {
+            if (match) {
+                if (['player_place','player_bonus_place'].includes(state.phase)) return onlineMove('place', { side, lane: colIdx });
+                return;
+            }
             if (state.isAnimating) return;
 
             if (state.phase === 'player_place') {
@@ -5283,7 +5339,8 @@
             slotEl.classList.remove('hidden');
 
             slotEl.innerHTML = renderDieHTML(
-                { value: state.currentDie, fixed: isFixedStyle, fixedOwner: 'player' },
+                { value: state.currentDie, fixed: isFixedStyle, fixedOwner: match && match.game.turn !== match.seat ? 'ai' : 'player',
+                    onlineSkin: match?.skins[match.game.turn] },
                 {
                     sizeClass: 'die-sz-tray',
                     owner: 'player',
@@ -5319,7 +5376,7 @@
             }
 
             const isPlayerTurn = state.phase.startsWith('player_');
-            const isAiTurn = state.phase === 'ai_turn';
+            const isAiTurn = state.phase === 'ai_turn' || state.phase === 'online_other';
             document.body.classList.toggle('turn-is-ai', isAiTurn);
             document.getElementById('player-turn-badge').classList.toggle('hidden', !isPlayerTurn);
             document.getElementById('ai-turn-badge').classList.toggle('hidden', !isAiTurn);
@@ -5327,7 +5384,7 @@
             const aiStatusEl = document.getElementById('ai-turn-status');
             const aiMiniDieBox = document.getElementById('ai-mini-die-box');
             if (isAiTurn) {
-                aiStatusEl.textContent = state.aiFixedRoll ? '고정 주사위 굴리는 중' : '주사위 굴리는 중';
+                aiStatusEl.textContent = match ? '상대 차례' : state.aiFixedRoll ? '고정 주사위 굴리는 중' : '주사위 굴리는 중';
                 if (state.aiDisplayDie) {
                     aiMiniDieBox.innerHTML = renderDieHTML(
                         { value: state.aiDisplayDie, fixed: state.aiFixedRoll, fixedOwner: 'ai' },
@@ -5580,11 +5637,11 @@
                 slotEl.classList.add('hidden');
                 rerollChoiceBox.classList.remove('hidden');
                 document.getElementById('reroll-before-die').innerHTML = renderDieHTML(
-                    { value: state.rerollBeforeDie, fixed: state.isOpeningTurn, fixedOwner: 'player' },
+                    { value: state.rerollBeforeDie, onlineSkin: match?.skins[match.seat], fixed: state.isOpeningTurn, fixedOwner: 'player' },
                     { sizeClass: 'die-sz-reroll', owner: 'player', showLockPin: false }
                 );
                 document.getElementById('reroll-after-die').innerHTML = renderDieHTML(
-                    { value: state.rerollAfterDie, fixed: state.isOpeningTurn, fixedOwner: 'player' },
+                    { value: state.rerollAfterDie, onlineSkin: match?.skins[match.seat], fixed: state.isOpeningTurn, fixedOwner: 'player' },
                     { sizeClass: 'die-sz-reroll', owner: 'player', showLockPin: false }
                 );
                 trayTitle.textContent = '🃏 리롤 결과 선택';
@@ -5609,6 +5666,14 @@
                 btnRoll.textContent = '배치할 열 클릭';
                 btnReroll.disabled = true;
 
+            } else if (state.phase === 'online_other') {
+                const game = match.game;
+                renderTrayOnly(false, game.opening || game.step.startsWith('bonus'));
+                trayTitle.textContent = game.die ? '상대 주사위 [' + state.currentDie + ']' : '상대 차례';
+                trayDesc.textContent = game.step === 'reroll_choose' ? '상대가 주사위 눈을 고르고 있어요.' : '상대의 행동을 기다리는 중이에요.';
+                btnRoll.disabled = true;
+                btnRoll.textContent = '상대 차례';
+                btnReroll.disabled = true;
             } else if (state.phase === 'ai_turn') {
                 renderTrayOnly(false, false);
                 trayTitle.textContent = '상대 턴 진행 중...';
@@ -5866,7 +5931,7 @@
                 audio.init();
                 audio.syncBgmState();
                 const btnBgm = document.getElementById('btn-bgm');
-                btnBgm.textContent = audio.bgmEnabled ? '🎵' : '🔇';
+                btnBgm.textContent = audio.bgmEnabled ? '배경음악 끄기' : '배경음악 켜기';
                 btnBgm.style.opacity = audio.bgmEnabled ? '1' : '0.55';
             });
 
@@ -5877,7 +5942,7 @@
                 } else {
                     audio.stopMusicBoxBgm();
                 }
-                document.getElementById('btn-sound').textContent = audio.enabled ? '🔊' : '🔇';
+                document.getElementById('btn-sound').textContent = audio.enabled ? '효과음 끄기' : '효과음 켜기';
             });
 
             const rulesModal = document.getElementById('rules-modal');
@@ -5987,7 +6052,7 @@
             });
 
             window.addEventListener('keydown', (e) => {
-                if (restartDialog.open) return;
+                if (restartDialog.open || !inGame || byId('game-settings').open || byId('online-result').open) return;
                 if (e.key === 'Escape') {
                     rulesModal.classList.add('hidden');
                     statsModal.classList.add('hidden');
@@ -6029,6 +6094,222 @@
             });
         }
 
+        // Configure both values after installing tika-multiplayer.sql.
+        const onlineConfig = {
+            url: 'https://yxjnrkuccoyspcyxfhen.supabase.co',
+            key: 'sb_publishable_ekQxLCcJsSA5Q7O2YPWspw_tTDbXD-N'
+        };
+        const ticketKey = 'tika_online_session';
+        let match = null;
+        let onlineBusy = false;
+        let leavePending = false;
+        let onlineTicket = null;
+        let inGame = false;
+
+        const byId = id => document.getElementById(id);
+        function showScreen(screen) {
+            for (const id of ['home-screen','online-screen','room-screen','app']) {
+                byId(id).hidden = id !== screen;
+            }
+        }
+
+        function onlineMessage(message) {
+            byId('online-message').textContent = message;
+        }
+
+        async function roomRequest(action, payload = {}, code = match?.code || '') {
+            if (!onlineConfig.url || !onlineConfig.key) throw new Error('SETUP');
+            const response = await fetch(onlineConfig.url.replace(/\/$/, '') + '/rest/v1/rpc/tika_room', {
+                method: 'POST',
+                headers: { apikey: onlineConfig.key, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, room_code: code, ticket: onlineTicket, payload }),
+                signal: AbortSignal.timeout(8000)
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'NETWORK');
+            return data;
+        }
+
+        function exitOnline(message = '') {
+            match = null;
+            sessionStorage.removeItem(ticketKey);
+            state.gameSessionId++;
+            state.isAnimating = false;
+            state.currentDie = null;
+            state.playerBoard = [[], [], []];
+            state.aiBoard = [[], [], []];
+            document.body.classList.remove('online-game');
+            byId('online-result').close();
+            audio.stopMusicBoxBgm();
+            inGame = false;
+            showScreen(message ? 'online-screen' : 'home-screen');
+            onlineMessage(message);
+        }
+
+        async function syncMatch(next) {
+            const previous = match;
+            if (next.status === 'closed') {
+                exitOnline('상대가 나갔거나 연결이 끊겨 방이 종료됐어요.');
+                return;
+            }
+            match = next;
+            sessionStorage.setItem(ticketKey, JSON.stringify({ code: next.code, ticket: onlineTicket }));
+            if (next.status === 'waiting') {
+                showScreen('room-screen');
+                byId('room-code').textContent = next.code;
+                byId('room-start').hidden = next.seat !== 0;
+                byId('room-start').disabled = !next.ready;
+                byId('room-status').textContent = !next.ready ? '친구를 기다리는 중'
+                    : next.seat === 0 ? '친구가 참가했어요.' : '방장이 시작하기를 기다리는 중';
+                return;
+            }
+            if (previous?.game?.version === next.game.version && previous.status === next.status) return;
+
+            const { game, seat, skins } = next;
+            const decodeBoard = index => game.boards[index].map(column => {
+                const dice = column.map(die => ({
+                    ...die, fixedOwner: die.roller === seat ? 'player' : 'ai', onlineSkin: skins[die.roller]
+                }));
+                return compactColumnMatchingDice(dice);
+            });
+            if (!inGame) {
+                audio.init();
+                state.gameSessionId++;
+                state.isAnimating = false;
+            }
+            inGame = true;
+            document.body.classList.add('online-game');
+            showScreen('app');
+            state.playerBoard = decodeBoard(seat);
+            state.aiBoard = decodeBoard(1 - seat);
+            state.currentDie = game.die;
+            state.isOpeningTurn = game.opening;
+            state.rerollsLeft = game.rerolls[seat];
+            state.rerollBeforeDie = game.before;
+            state.rerollAfterDie = game.die;
+            const myTurn = game.turn === seat;
+            const phase = next.status === 'finished' ? 'gameover' : myTurn ? 'player_' + game.step : 'online_other';
+            if (previous?.game && (game.last === 'roll' || game.last === 'reroll')) {
+                state.phase = 'online_other';
+                renderAll();
+                audio.init();
+                await animateDieRoll({ finalVal: game.die, isFixedStyle: game.opening || game.step === 'bonus_place' });
+            }
+            state.phase = phase;
+            renderAll();
+            if (phase === 'gameover') {
+                const scores = [state.playerBoard,state.aiBoard].map(board => board.map(c => analyzeColumn(c).totalScore));
+                const lanes = scores[0].reduce((sum, score, i) => sum + Math.sign(score - scores[1][i]), 0);
+                const total = scores[0].reduce((sum, score, i) => sum + score - scores[1][i], 0);
+                const result = lanes || total;
+                byId('online-result-text').textContent = result > 0 ? '승리!' : result < 0 ? '패배' : '무승부';
+                byId('online-result').showModal();
+            }
+        }
+
+        async function onlineAction(action, payload, code) {
+            if (onlineBusy) {
+                if (action === 'leave') leavePending = true;
+                return;
+            }
+            onlineBusy = true;
+            try {
+                const next = await roomRequest(action, payload, code);
+                if (action === 'leave') exitOnline();
+                else await syncMatch(next);
+            } catch (error) {
+                const messages = {
+                    SETUP: 'Supabase 연결이 필요해요.',
+                    NO_ROOM: '방을 찾을 수 없어요. 코드를 확인해 주세요.',
+                    ROOM_FULL: '이미 두 사람이 참가했어요.',
+                    STALE: '상대와 게임 상태를 맞추는 중이에요.',
+                    INVALID: '지금은 그 칸에 놓을 수 없어요.'
+                };
+                const message = messages[error.message] || '연결할 수 없어요. 잠시 뒤 다시 시도해 주세요.';
+                if (action === 'leave' || (action === 'poll' && error.message === 'NO_ROOM')) exitOnline(message);
+                else if (inGame) byId('tray-desc').textContent = message;
+                else {
+                    onlineMessage(message);
+                    byId('room-status').textContent = message;
+                }
+            } finally {
+                onlineBusy = false;
+                if (leavePending) {
+                    leavePending = false;
+                    if (match) onlineAction('leave');
+                }
+            }
+        }
+
+        function onlineMove(move, extra = {}) {
+            if (match?.status !== 'playing' || match.game.turn !== match.seat) return;
+            return onlineAction('move', { move, version: match.game.version, ...extra });
+        }
+
+        function bindNavigation() {
+            byId('open-single').onclick = () => {
+                showScreen('app');
+                inGame = true;
+                audio.init();
+                if (!resumeRound()) startNewGame();
+            };
+            byId('open-online').onclick = () => showScreen('online-screen');
+            byId('online-back').onclick = () => showScreen('home-screen');
+            byId('open-settings').onclick = () => byId('game-settings').showModal();
+            byId('return-home').onclick = () => {
+                byId('game-settings').close();
+                if (match) return onlineAction('leave');
+                state.gameSessionId++;
+                state.isAnimating = false;
+                byId('cointoss-overlay').classList.add('hidden');
+                audio.stopMusicBoxBgm();
+                inGame = false;
+                showScreen('home-screen');
+            };
+            byId('online-result-home').onclick = () => onlineAction('leave');
+            byId('room-leave').onclick = () => onlineAction('leave');
+            byId('room-start').onclick = () => onlineAction('start');
+            byId('room-copy').onclick = async () => {
+                try {
+                    await navigator.clipboard.writeText(match.code);
+                    byId('room-status').textContent = '방 코드를 복사했어요.';
+                } catch {
+                    byId('room-status').textContent = '위 방 코드를 길게 눌러 복사해 주세요.';
+                }
+            };
+            byId('create-room').onclick = () => {
+                if (onlineBusy) return;
+                if (!onlineConfig.url || !onlineConfig.key) return onlineMessage('Supabase 연결이 필요해요.');
+                onlineTicket = crypto.randomUUID();
+                onlineAction('create', { skin: state.skins.equippedDice });
+            };
+            byId('join-room').onsubmit = event => {
+                event.preventDefault();
+                const input = byId('join-code');
+                if (input.hidden) {
+                    input.hidden = false;
+                    input.focus();
+                    return;
+                }
+                if (onlineBusy) return;
+                const code = input.value.trim().toUpperCase();
+                if (!/^[0-9A-F]{8}$/.test(code)) return onlineMessage('8자리 방 코드를 입력해 주세요.');
+                onlineTicket = crypto.randomUUID();
+                onlineAction('join', { skin: state.skins.equippedDice }, code);
+            };
+            const saved = sessionStorage.getItem(ticketKey);
+            if (saved && onlineConfig.url && onlineConfig.key) {
+                try {
+                    const { ticket, code } = JSON.parse(saved);
+                    onlineTicket = ticket;
+                    onlineAction('poll', {}, code);
+                } catch {
+                    sessionStorage.removeItem(ticketKey);
+                }
+            }
+            setInterval(() => { if (match) onlineAction('poll'); }, 900);
+        }
+
         function bootstrap() {
             // Earlier releases use separate keys, so an old open tab cannot restore their progress.
             try {
@@ -6039,7 +6320,7 @@
             loadStats();
             loadSkins();
             bindEvents();
-            if (!resumeRound()) startNewGame();
+            bindNavigation();
         }
 
         if (document.readyState === 'loading') {
