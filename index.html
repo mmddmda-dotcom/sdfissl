@@ -2952,7 +2952,7 @@
 
                     <div style="min-width:0;">
                         <div id="tray-title" class="tray-status-title">주사위를 굴려주세요!</div>
-                        <div id="tray-desc" class="tray-status-sub">[🎲 주사위 굴리기] 버튼이나 Spacebar를 누르세요.</div>
+                        <div id="tray-desc" class="tray-status-sub">버튼이나 스페이스바를 눌러 주사위를 굴리세요.</div>
                     </div>
                 </div>
 
@@ -3070,25 +3070,20 @@
             </div>
             <div style="display:flex;flex-direction:column;gap:9px;font-size:12.5px;color:#f3e8d2;line-height:1.55;max-height:60vh;overflow-y:auto;">
                 <div style="background:#160c07;padding:10px 12px;border-radius:10px;border:1px solid rgba(200,150,62,0.28);">
-                    <div style="font-weight:900;color:#f3d078;margin-bottom:2px;">1. 50:50 코인 토스 & 18칸 완주 2선승제</div>
-                    <p>매 판 시작 시 <b>코인 토스(50:50)</b>로 선공을 정합니다. 한쪽 9칸이 먼저 차면 해당 턴은 자동 패스되며, <b>양쪽 18칸(나 9칸 + 상대 9칸)이 전부 채워져야 종료</b>됩니다. 3개 열 중 2개 이상 점수가 높으면 승리하며, 열 승수와 총점까지 모두 동점인 무승부 시 <b>나 승리 판정</b>으로 처리됩니다.</p>
+                    <div style="font-weight:900;color:#f3d078;margin-bottom:2px;">1. 시작과 승리</div>
+                    <p>동전을 던져 누가 먼저 할지 정합니다. 차례가 되면 주사위를 굴리고 칸을 선택하세요. 한쪽 보드가 차면 그쪽은 차례를 건너뜁니다. 양쪽 18칸이 모두 차면 끝납니다.<br><b>더 많은 열에서 점수가 높은 쪽이 이깁니다.</b> 이긴 열 수가 같으면 총점으로 겨룹니다. 총점도 같으면 내가 이깁니다.</p>
                 </div>
                 <div style="background:#160c07;padding:10px 12px;border-radius:10px;border:1px solid rgba(200,150,62,0.28);">
-                    <div style="font-weight:900;color:#fde68a;margin-bottom:2px;">2. 같은 눈 보너스 (+1개 / +2개 추가 합산)</div>
-                    <p>같은 열에 동일한 눈 주사위가 모이면 보너스 개수가 추가 합산됩니다:<br>
-                    • <b>2개 모임 (+1개 보너스)</b>: 동일 눈 1개 추가 → 예: 2, 2면 2+2+<b>2</b> = <b>6점</b> (4, 4면 <b>12점</b>)<br>
-                    • <b>3개 모임 (+2개 보너스)</b>: 동일 눈 2개 추가 → 예: 2, 2, 2면 2×5 = <b>10점</b> (4, 4, 4면 <b>20점</b>)</p>
+                    <div style="font-weight:900;color:#fde68a;margin-bottom:2px;">2. 같은 눈을 모으면 더 높은 점수</div>
+                    <p>열의 점수는 주사위 눈을 더해서 계산합니다. 같은 열에 <b>같은 눈이 2개면 그 눈을 한 번 더</b>, <b>3개면 두 번 더</b> 더합니다.<br>예를 들어 2가 두 개면 6점, 세 개면 10점입니다.</p>
                 </div>
                 <div style="background:#160c07;padding:10px 12px;border-radius:10px;border:1px solid rgba(200,150,62,0.28);">
-                    <div style="font-weight:900;color:#fda4af;margin-bottom:2px;">3. 알까기 (직접 발사 & 연결된 동일 눈 일괄 파괴)</div>
-                    <p>• 내 열에 빈 칸이 1칸 이상 있고 맞은편 상대 열에 같은 눈(고정 주사위 제외)이 있으면, 내 열이나 상대 열을 클릭해 주사위를 직접 발사하여 파괴합니다.<br>
-                    • 맞은편에 같은 눈이 <b>2~3개 연결</b>되어 있으면 <b>한꺼번에 전부 날아가며</b>, 알까기한 내 주사위도 함께 소멸합니다.</p>
+                    <div style="font-weight:900;color:#fda4af;margin-bottom:2px;">3. 알까기</div>
+                    <p>내 열에 빈 칸이 있고 맞은편 상대 열에 방금 굴린 눈과 같은 주사위가 있으면 알까기를 할 수 있습니다. <b>강조된 열을 누르면</b> 같은 눈의 상대 주사위가 모두 사라지고, 내가 굴린 주사위도 사라집니다. 고정 주사위는 남습니다.</p>
                 </div>
                 <div style="background:#160c07;padding:10px 12px;border-radius:10px;border:1px solid rgba(200,150,62,0.28);">
-                    <div style="font-weight:900;color:#6ee7b7;margin-bottom:2px;">4. 고정 주사위 & 리롤 (타짜의 손놀림)</div>
-                    <p>• <b>선공 첫 주사위</b>: 코인 토스 승자의 첫 주사위는 고정 주사위이며, <b>자신의 진영 빈 칸에만 배치 가능</b>하고 정규 턴이므로 <b>리롤(1회) 가능</b>합니다.<br>
-                    • <b>알까기 보너스 고정 주사위</b>: 알까기 성공 시 얻는 고정 주사위는 <b>내 빈 칸 또는 상대 빈 칸(방해 투척) 모두 배치 가능</b>하며, 보너스 턴이므로 리롤할 수 없습니다.<br>
-                    • <b>타짜의 손놀림(리롤)</b>: 게임당 1회 사용 가능하며, 리롤 시 <b>기존과 같은 눈은 나오지 않고</b> 다른 눈이 나옵니다.</p>
+                    <div style="font-weight:900;color:#6ee7b7;margin-bottom:2px;">4. 고정 주사위와 다시 굴리기</div>
+                    <p><b>선공의 첫 주사위</b>는 고정 주사위입니다. 내 보드에만 놓을 수 있고, 다시 굴릴 수 있습니다.<br><b>알까기에 성공하면</b> 보너스 고정 주사위를 굴립니다. 내 보드나 상대 보드의 빈 칸에 놓을 수 있으며, 다시 굴릴 수 없습니다.<br><b>다시 굴리기</b>는 한 판에 한 번입니다. 처음과 다른 눈이 나오며, 둘 중 하나를 골라 쓸 수 있습니다.</p>
                 </div>
             </div>
             <button type="button" id="btn-confirm-rules" class="btn-roll-main" style="width:100%;margin-top:12px;padding:9px;">확인</button>
@@ -4052,7 +4047,7 @@
                 id: 'classic_white',
                 name: '순백 입체 주사위',
                 desc: '시인성이 뛰어난 클래식 순백색 입체 주사위',
-                conditionLabel: '기본 지급 (해금 완료)',
+                conditionLabel: '기본 지급',
                 checkUnlock: () => ({ unlocked: true, progressText: '해금 완료' })
             },
             {
@@ -4072,7 +4067,7 @@
                 id: 'black_hole',
                 name: '블랙홀 주사위',
                 desc: '모든 빛을 삼키는 칠흑 블랙홀 코어와 주황·보랏빛 강착원반 고리가 맴도는 주사위',
-                conditionLabel: '합산 패배 5회 달성 (세트 효과음: 웅웅~ 중력파)',
+                conditionLabel: '합산 패배 5회 달성',
                 checkUnlock: (stats) => {
                     const totalLosses = (stats.normal.losses || 0) + (stats.tazza.losses || 0);
                     return {
@@ -4084,8 +4079,8 @@
             {
                 id: 'najeon_lacquer',
                 name: '나전칠기 자개 주사위',
-                desc: '깊은 흑칠 바탕 위 오로라빛 영롱한 자개 눈이 반짝이는 전통 주사위 (착용 시 테마 블루 전환)',
-                conditionLabel: '일반 모드 승리 5회 달성 (세트 효과음: 묵직한 저음)',
+                desc: '깊은 흑칠 바탕 위 오로라빛 영롱한 자개 눈이 반짝이는 전통 주사위',
+                conditionLabel: '일반 모드 승리 5회 달성',
                 checkUnlock: (stats) => {
                     const normalWins = stats.normal.wins || 0;
                     return {
@@ -4098,7 +4093,7 @@
                 id: 'pure_gold',
                 name: '24K 순금 금박 주사위',
                 desc: '실제 금괴를 깎아 만든 듯한 강렬한 메탈릭 반사광의 순금 주사위',
-                conditionLabel: '타짜 모드 승리 7회 달성 (세트 효과음: 차랑차랑~)',
+                conditionLabel: '타짜 모드 승리 7회 달성',
                 checkUnlock: (stats) => {
                     const tazzaWins = stats.tazza.wins || 0;
                     return {
@@ -4111,7 +4106,7 @@
                 id: 'ocean_bubble',
                 name: '바다 공기방울 주사위',
                 desc: '투명한 물방울 속에 작은 기포가 갇힌 청량한 주사위',
-                conditionLabel: '합산 승리 10회 달성 (세트 효과음: 보글보글)',
+                conditionLabel: '합산 승리 10회 달성',
                 checkUnlock: (stats) => {
                     const totalWins = (stats.normal.wins || 0) + (stats.tazza.wins || 0);
                     return {
@@ -4123,8 +4118,8 @@
             {
                 id: 'clockwork_gem',
                 name: '황금 태엽 주사위',
-                desc: '브러시드 황동 바탕에 정교한 톱니바퀴와 태엽 문양을 새긴 기계식 주사위 (오르골 BGM 지원)',
-                conditionLabel: '타짜 모드 17연승 달성 (오르골 BGM 지원)',
+                desc: '황동 바탕에 톱니와 태엽 무늬를 새긴 주사위',
+                conditionLabel: '타짜 모드 17연승 달성',
                 checkUnlock: (stats) => {
                     const bestTazzaStreak = Math.max(stats.tazza.maxStreak || 0, stats.tazza.streak || 0);
                     return {
@@ -4140,14 +4135,14 @@
                 id: 'walnut_velvet',
                 name: '월넛 원목 & 로열 벨벳 보드',
                 desc: '중후한 호두나무 원목 보드와 붉은 벨벳 주사위 트레이의 클래식 기본 테이블',
-                conditionLabel: '기본 지급 (해금 완료)',
+                conditionLabel: '기본 지급',
                 checkUnlock: () => ({ unlocked: true, progressText: '해금 완료' })
             },
             {
                 id: 'deep_space',
                 name: '칠흑 우주 보드',
                 desc: '깊고 검은 심우주 배경 위로 별빛 점박이와 성운이 은은하게 반짝이는 우주 보드',
-                conditionLabel: '5연패 달성 (세트 효과음: 웅웅~ 중력파)',
+                conditionLabel: '5연패 달성',
                 checkUnlock: (stats) => {
                     const bestLoseStreak = Math.max(
                         stats.normal.maxLoseStreak || 0,
@@ -4178,7 +4173,7 @@
                 id: 'pure_gold',
                 name: '24K 순금 제왕 보드',
                 desc: '압연 순금판의 묵직한 금속 광택과 황금 왕관 문장이 빛나는 순금 보드',
-                conditionLabel: '일반 모드 승리 7회 달성 (세트 효과음: 차랑차랑~)',
+                conditionLabel: '일반 모드 승리 7회 달성',
                 checkUnlock: (stats) => {
                     const normalWins = stats.normal.wins || 0;
                     return {
@@ -4191,7 +4186,7 @@
                 id: 'korean_hanok',
                 name: '한국 전통 한지 창호 보드',
                 desc: '따뜻한 전통 한지 질감과 짙은 밤나무 격자 창살이 어우러진 한옥 창호 보드',
-                conditionLabel: '일반 모드 10연승 달성 (세트 효과음: 묵직한 저음)',
+                conditionLabel: '일반 모드 10연승 달성',
                 checkUnlock: (stats) => {
                     const bestNormalStreak = Math.max(stats.normal.maxStreak || 0, stats.normal.streak || 0);
                     return {
@@ -4203,8 +4198,8 @@
             {
                 id: 'deep_ocean',
                 name: '아쿠아리움 보드',
-                desc: '수면에서 들어온 햇살 아래 산호초와 기포가 보이는 수조 (패드·컴퓨터 트레이 위 가오리 유영)',
-                conditionLabel: '타짜 모드 10연승 달성 (세트 효과음: 보글보글)',
+                desc: '수면에서 들어온 햇살 아래 산호초와 기포가 보이는 수조',
+                conditionLabel: '타짜 모드 10연승 달성',
                 checkUnlock: (stats) => {
                     const bestTazzaStreak = Math.max(stats.tazza.maxStreak || 0, stats.tazza.streak || 0);
                     return {
@@ -4216,8 +4211,8 @@
             {
                 id: 'clockwork_palace',
                 name: '황금 시계태엽 궁전 보드',
-                desc: '에메랄드 벨벳 위 황금 톱니바퀴가 턴마다 반대로 맞물려 도는 시계태엽 궁전 보드',
-                conditionLabel: '타짜 모드 17연승 달성 (잔잔한 오르골 BGM 포함)',
+                desc: '짙은 녹색 보드의 모서리에서 황동 톱니바퀴가 돌아가는 태엽 테마',
+                conditionLabel: '타짜 모드 17연승 달성',
                 checkUnlock: (stats) => {
                     const bestTazzaStreak = Math.max(stats.tazza.maxStreak || 0, stats.tazza.streak || 0);
                     return {
@@ -4411,7 +4406,7 @@
 
                 const conditionLine = isUnlocked
                     ? `<span style="color:#6ee7b7;">✔ ${skin.conditionLabel}</span>`
-                    : `<span style="color:#fbbf24;">조건: ${skin.conditionLabel} (${evalInfo.progressText})</span>`;
+                    : `<span style="color:#fbbf24;">조건: ${skin.conditionLabel}</span>`;
 
                 return `
                     <div class="${cardClass}" data-skin-type="${tab}" data-skin-id="${skin.id}">
@@ -5491,11 +5486,11 @@
                 const isFirstLock = state.isOpeningTurn;
                 renderTrayOnly(false, isFirstLock);
                 trayTitle.textContent = isFirstLock
-                    ? '👑 선공 첫 고정 주사위 차례!'
-                    : '내 턴입니다! 주사위를 굴려주세요.';
+                    ? '👑 첫 주사위는 고정'
+                    : '내 차례입니다';
                 trayDesc.textContent = isFirstLock
-                    ? '고정 주사위(내 진영 전용 · 리롤 가능)를 굴립니다.'
-                    : '[🎲 주사위 굴리기] 버튼이나 Spacebar를 누르세요.';
+                    ? '첫 주사위를 굴리세요. 굴린 뒤 내 보드에 놓을 수 있습니다.'
+                    : '버튼이나 스페이스바를 눌러 주사위를 굴리세요.';
                 btnRoll.disabled = false;
                 btnRoll.textContent = isFirstLock ? '🔒 선공 고정 주사위 굴리기' : '🎲 주사위 굴리기 (Space)';
                 if (isFirstLock) btnRoll.classList.add('btn-roll-fixed');
@@ -5522,13 +5517,13 @@
 
                 if (isFirstLock) {
                     trayTitle.textContent = `🔒 선공 고정 [${state.currentDie}] — 내 진영에 배치`;
-                    trayDesc.textContent = '내 진영 빈 칸에 배치하거나 [🃏 타짜의 손놀림] 리롤을 쓸 수 있습니다.';
+                    trayDesc.textContent = '내 빈 칸에 놓거나 다시 굴리세요.';
                 } else if (smashTargets.length > 0) {
                     trayTitle.textContent = `💥 [${state.currentDie}] 알까기 발사 가능!`;
-                    trayDesc.textContent = '강조된 열을 눌러 상대 같은 눈 주사위를 날려버리세요!';
+                    trayDesc.textContent = '강조된 열을 눌러 상대의 같은 눈 주사위를 없애세요.';
                 } else {
                     trayTitle.textContent = `주사위 [${state.currentDie}] 배치`;
-                    trayDesc.textContent = '내 진영의 빈 열을 클릭해 주사위를 놓으세요.';
+                    trayDesc.textContent = '내 보드에서 빈 칸이 있는 열을 누르세요.';
                 }
 
                 btnRoll.disabled = true;
@@ -5547,14 +5542,14 @@
                     { sizeClass: 'die-sz-reroll', owner: 'player', showLockPin: false }
                 );
                 trayTitle.textContent = '🃏 리롤 결과 선택';
-                trayDesc.textContent = `[리롤 전: ${state.rerollBeforeDie}] vs [리롤 후: ${state.rerollAfterDie}] 중 선택하세요.`;
+                trayDesc.textContent = `처음 나온 눈은 ${state.rerollBeforeDie}, 다시 나온 눈은 ${state.rerollAfterDie}입니다. 둘 중 하나를 고르세요.`;
                 btnRoll.disabled = true;
                 btnReroll.disabled = true;
 
             } else if (state.phase === 'player_bonus_wait_roll') {
                 renderTrayOnly(false, true);
                 trayTitle.textContent = '🔒 알까기 보너스 고정 주사위';
-                trayDesc.textContent = '고정 주사위를 굴려 내 진영이나 상대 진영에 배치하세요!';
+                trayDesc.textContent = '알까기에 성공했습니다. 보너스 주사위를 굴리세요.';
                 btnRoll.disabled = false;
                 btnRoll.textContent = '🔒 고정 주사위 굴리기 (Space)';
                 btnRoll.classList.add('btn-roll-fixed');
@@ -5563,7 +5558,7 @@
             } else if (state.phase === 'player_bonus_place') {
                 renderTrayOnly(false, true);
                 trayTitle.textContent = `🔒 고정 주사위 [${state.currentDie}] 배치`;
-                trayDesc.textContent = '내 빈 칸(방어) 또는 상대 빈 칸(방해 투척)을 클릭하세요!';
+                trayDesc.textContent = '내 보드나 상대 보드의 빈 칸에 놓으세요.';
                 btnRoll.disabled = true;
                 btnRoll.textContent = '배치할 열 클릭';
                 btnReroll.disabled = true;
