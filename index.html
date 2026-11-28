@@ -4067,7 +4067,7 @@
            ============================================================================ */
         const STATS_KEY = 'tika_tuka_mode_stats_v7';
         const SKINS_KEY = 'tika_tuka_ocean_skins_v2';
-        const ACTIVE_ROUND_KEY = 'tika_tuka_active_round_v7';
+        const ROUND_KEY = 'tika_tuka_round_v1';
 
         const DICE_SKIN_CATALOG = [
             {
@@ -4493,9 +4493,9 @@
             renderAll();
         }
 
-        function rollDieValue(excludeVal = null) {
+        function rollDieValue(excludeVal = null, random = Math.random) {
             const pool = [1, 2, 3, 4, 5, 6].filter(v => v !== excludeVal);
-            return pool[Math.floor(Math.random() * pool.length)];
+            return pool[Math.floor(random() * pool.length)];
         }
 
         function compactColumnMatchingDice(colDice) {
@@ -4579,7 +4579,7 @@
             return targets;
         }
 
-        async function animateDieRoll({ durationMs = 520, tickIntervalMs = 50, isFixedStyle = false, excludeVal = null }) {
+        async function animateDieRoll({ durationMs = 520, tickIntervalMs = 50, isFixedStyle = false, finalVal }) {
             const session = state.gameSessionId;
             const steps = Math.max(5, Math.floor(durationMs / tickIntervalMs));
             for (let i = 0; i < steps; i++) {
@@ -4589,7 +4589,6 @@
                 await new Promise(r => setTimeout(r, tickIntervalMs));
                 if (session !== state.gameSessionId) return null;
             }
-            const finalVal = rollDieValue(excludeVal);
             state.currentDie = finalVal;
             audio.playRollStop(isFixedStyle);
             renderTrayOnly(false, isFixedStyle);
@@ -4610,6 +4609,7 @@
             subEl.textContent = '앞면(👑): 나 선공 · 뒷면(🎭): 상대 선공 (50:50)';
 
             const isPlayerFirst = Math.random() < 0.5;
+            saveRound(isPlayerFirst ? 'player_wait_roll' : 'coin_ai_first', { isOpeningTurn: true });
             audio.playCoinFlip();
 
             const targetDeg = isPlayerFirst ? 1800 : 1980;
@@ -4643,6 +4643,7 @@
 
             if (isPlayerFirst) {
                 state.phase = 'player_wait_roll';
+                saveRound();
                 renderAll();
             } else {
                 state.phase = 'ai_turn';
@@ -4670,11 +4671,13 @@
                     runAiTurn();
                 } else {
                     state.phase = 'player_wait_roll';
+                    saveRound();
                     renderAll();
                 }
             } else {
                 if (!isBoardFull(state.playerBoard)) {
                     state.phase = 'player_wait_roll';
+                    saveRound();
                     renderAll();
                 } else {
                     state.phase = 'ai_turn';
@@ -4747,6 +4750,8 @@
             const isFixedRoll = isBonus || state.isOpeningTurn;
             state.isAnimating = true;
             state.phase = isBonus ? 'player_bonus_rolling' : 'player_rolling';
+            const finalVal = rollDieValue();
+            saveRound(isBonus ? 'player_bonus_place' : 'player_place', { currentDie: finalVal });
             audio.init();
             renderAll();
 
@@ -4754,7 +4759,7 @@
                 durationMs: 520,
                 tickIntervalMs: 50,
                 isFixedStyle: isFixedRoll,
-                excludeVal: null
+                finalVal
             });
 
             if (rolledDie === null) return;
@@ -4773,6 +4778,8 @@
             state.rerollBeforeDie = savedBeforeDie;
             state.isAnimating = true;
             state.phase = 'player_rerolling';
+            const finalVal = rollDieValue(savedBeforeDie);
+            saveRound('player_reroll_choose', { currentDie: finalVal, rerollAfterDie: finalVal });
             audio.init();
             renderAll();
 
@@ -4780,7 +4787,7 @@
                 durationMs: 560,
                 tickIntervalMs: 50,
                 isFixedStyle: isFixedOpening,
-                excludeVal: savedBeforeDie
+                finalVal
             });
 
             if (newRolledDie === null) return;
@@ -4797,6 +4804,7 @@
             state.rerollBeforeDie = null;
             state.rerollAfterDie = null;
             state.phase = 'player_place';
+            saveRound();
             audio.playPlace(1, state.isOpeningTurn);
             renderAll();
         }
@@ -4892,6 +4900,7 @@
             // 애니메이션 시작과 동시에 실제 보드 데이터에서 파괴 대상 주사위를 즉시 제거하여 불일치 원천 차단
             state.aiBoard[colIdx] = state.aiBoard[colIdx].filter(d => !(Number(d.value) === targetVal && !d.fixed));
             compactColumnMatchingDice(state.aiBoard[colIdx]);
+            saveRound('player_bonus_wait_roll', { currentDie: null });
 
             try {
                 await playAlkkagiFlightAnimation({
@@ -4915,7 +4924,14 @@
         /* ============================================================================
            8. 상대 AI 턴 로직
            ============================================================================ */
-        async function runAiTurn() {
+        async function runAiTurn(seed = Math.floor(Math.random() * 2 ** 32)) {
+            // Replaying the turn uses the same dice and choices, independent of visual effects.
+            let randomState = seed;
+            const random = () => {
+                randomState = (Math.imul(randomState, 1664525) + 1013904223) >>> 0;
+                return randomState / 2 ** 32;
+            };
+            saveRound('ai_turn', { aiSeed: seed });
             const session = state.gameSessionId;
             const difficulty = state.activeAiMode;
             const isOpening = state.isOpeningTurn;
@@ -4943,7 +4959,7 @@
                 }
                 if (session !== state.gameSessionId) return;
                 state.aiRollingAnim = false;
-                let chosenVal = rollDieValue();
+                let chosenVal = rollDieValue(null, random);
                 state.aiDisplayDie = chosenVal;
                 audio.playRollStop(isOpening);
                 renderAll();
@@ -4951,7 +4967,7 @@
                 if (difficulty === 'tazza' && !state.aiRerollUsed) {
                     const canSmashNow = !isOpening && getSmashableTargets(chosenVal, false).length > 0;
                     const hasMatchNow = state.aiBoard.some(col => col.length < 3 && col.some(d => Number(d.value) === Number(chosenVal)));
-                    if (!canSmashNow && !hasMatchNow && chosenVal <= 2 && Math.random() < 0.65) {
+                    if (!canSmashNow && !hasMatchNow && chosenVal <= 2 && random() < 0.65) {
                         const prevAiVal = chosenVal;
                         state.aiRerollUsed = true;
                         await new Promise(r => setTimeout(r, 420));
@@ -4966,7 +4982,7 @@
                         }
                         if (session !== state.gameSessionId) return;
                         state.aiRollingAnim = false;
-                        const rerolledVal = rollDieValue(prevAiVal);
+                        const rerolledVal = rollDieValue(prevAiVal, random);
                         state.aiDisplayDie = rerolledVal;
                         audio.playRollStop(isOpening);
                         renderAll();
@@ -4985,7 +5001,7 @@
                 if (session !== state.gameSessionId) return;
 
                 if (isOpening) {
-                    const colIdx = chooseAiOwnColumn(chosenVal, difficulty, false);
+                    const colIdx = chooseAiOwnColumn(chosenVal, difficulty, false, random);
                     state.aiBoard[colIdx].push({ value: chosenVal, fixed: true, fixedOwner: 'ai' });
                     compactColumnMatchingDice(state.aiBoard[colIdx]);
                     state.isOpeningTurn = false;
@@ -4994,6 +5010,7 @@
                     state.aiDisplayDie = null;
                     state.aiFixedRoll = false;
                     renderAll(colIdx, 'ai');
+                    saveRound('ai_finish');
                     await new Promise(r => setTimeout(r, 320));
                     if (session !== state.gameSessionId) return;
                     advanceTurnAfterAction('ai');
@@ -5053,7 +5070,7 @@
                     }
                     if (session !== state.gameSessionId) return;
                     state.aiRollingAnim = false;
-                    const bonusVal = rollDieValue();
+                    const bonusVal = rollDieValue(null, random);
                     state.aiDisplayDie = bonusVal;
                     audio.playRollStop(true);
                     renderAll();
@@ -5080,7 +5097,7 @@
                         state.aiFixedRoll = false;
                         renderAll(bestPCol, 'player');
                     } else if (aiAvail.length > 0) {
-                        const bestACol = chooseAiOwnColumn(bonusVal, difficulty, false);
+                        const bestACol = chooseAiOwnColumn(bonusVal, difficulty, false, random);
                         state.aiBoard[bestACol].push({ value: bonusVal, fixed: true, fixedOwner: 'ai' });
                         compactColumnMatchingDice(state.aiBoard[bestACol]);
                         const evalAfter = analyzeColumn(state.aiBoard[bestACol]);
@@ -5098,13 +5115,14 @@
                         renderAll(pCol, 'player');
                     }
 
+                    saveRound('ai_finish');
                     await new Promise(r => setTimeout(r, 320));
                     if (session !== state.gameSessionId) return;
                     advanceTurnAfterAction('ai');
                     return;
                 }
 
-                const chosenCol = chooseAiOwnColumn(chosenVal, difficulty, false);
+                const chosenCol = chooseAiOwnColumn(chosenVal, difficulty, false, random);
                 state.aiBoard[chosenCol].push({ value: chosenVal, fixed: false });
                 compactColumnMatchingDice(state.aiBoard[chosenCol]);
                 const evalAfter = analyzeColumn(state.aiBoard[chosenCol]);
@@ -5112,6 +5130,7 @@
                 state.aiDisplayDie = null;
                 state.aiFixedRoll = false;
                 renderAll(chosenCol, 'ai');
+                saveRound('ai_finish');
                 await new Promise(r => setTimeout(r, 320));
                 if (session !== state.gameSessionId) return;
                 advanceTurnAfterAction('ai');
@@ -5125,13 +5144,13 @@
             }
         }
 
-        function chooseAiOwnColumn(dieVal, difficulty, isFixed) {
+        function chooseAiOwnColumn(dieVal, difficulty, isFixed, random) {
             const available = [0, 1, 2].filter(c => state.aiBoard[c].length < 3);
             if (available.length === 0) return 0;
             if (available.length === 1) return available[0];
 
-            if (difficulty === 'normal' && Math.random() < 0.25) {
-                return available[Math.floor(Math.random() * available.length)];
+            if (difficulty === 'normal' && random() < 0.25) {
+                return available[Math.floor(random() * available.length)];
             }
 
             let bestCol = available[0];
@@ -5694,15 +5713,65 @@
             }
 
             renderAll();
-            saveActiveRound(null);
+            writeRound(null);
             document.getElementById('gameover-modal').classList.remove('hidden');
         }
 
-        function saveActiveRound(mode) {
+        let roundCheckpoint = null;
+
+        function writeRound(round) {
+            roundCheckpoint = round;
             try {
-                if (mode) sessionStorage.setItem(ACTIVE_ROUND_KEY, mode);
-                else sessionStorage.removeItem(ACTIVE_ROUND_KEY);
+                if (round) localStorage.setItem(ROUND_KEY, JSON.stringify(round));
+                else localStorage.removeItem(ROUND_KEY);
             } catch (e) {}
+        }
+
+        function saveRound(phase = state.phase, overrides = {}) {
+            writeRound({
+                phase,
+                playerBoard: state.playerBoard.map(column => column.slice()),
+                aiBoard: state.aiBoard.map(column => column.slice()),
+                activeAiMode: state.activeAiMode,
+                queuedAiMode: state.queuedAiMode,
+                isOpeningTurn: state.isOpeningTurn,
+                aiRerollUsed: state.aiRerollUsed,
+                currentDie: state.currentDie,
+                rerollBeforeDie: state.rerollBeforeDie,
+                rerollAfterDie: state.rerollAfterDie,
+                rerollsLeft: state.rerollsLeft,
+                ...overrides
+            });
+        }
+
+        function resumeRound() {
+            let saved;
+            try {
+                saved = JSON.parse(localStorage.getItem(ROUND_KEY));
+            } catch (e) {
+                return false;
+            }
+            const phases = ['player_wait_roll', 'player_place', 'player_reroll_choose',
+                'player_bonus_wait_roll', 'player_bonus_place', 'coin_ai_first', 'ai_turn', 'ai_finish'];
+            const validBoard = board => Array.isArray(board) && board.length === 3 &&
+                board.every(column => Array.isArray(column) && column.length <= 3 &&
+                    column.every(die => Number.isInteger(die?.value) && die.value >= 1 && die.value <= 6));
+            const validMode = mode => mode === 'normal' || mode === 'tazza';
+            if (!saved || !phases.includes(saved.phase) || !validBoard(saved.playerBoard) ||
+                !validBoard(saved.aiBoard) || !validMode(saved.activeAiMode) || !validMode(saved.queuedAiMode)) return false;
+
+            const { aiSeed, ...round } = saved;
+            roundCheckpoint = saved;
+            Object.assign(state, round);
+            if (round.phase === 'ai_finish') {
+                advanceTurnAfterAction('ai');
+            } else if (round.phase === 'ai_turn' || round.phase === 'coin_ai_first') {
+                state.phase = 'ai_turn';
+                runAiTurn(aiSeed);
+            } else {
+                renderAll();
+            }
+            return true;
         }
 
         function breakWinStreak(mode) {
@@ -5713,20 +5782,9 @@
             saveStats();
         }
 
-        function checkInterruptedRound() {
-            let previousMode;
-            try {
-                previousMode = sessionStorage.getItem(ACTIVE_ROUND_KEY);
-            } catch (e) {
-                return;
-            }
-            breakWinStreak(previousMode);
-        }
-
         function startNewGame() {
             state.gameSessionId++;
             state.activeAiMode = state.queuedAiMode;
-            saveActiveRound(state.activeAiMode);
             state.playerBoard = [[], [], []];
             state.aiBoard = [[], [], []];
             state.phase = 'coin_toss';
@@ -5762,9 +5820,11 @@
                     state.queuedAiMode = mode;
 
                     const isBoardEmpty = state.playerBoard.every(c => c.length === 0) && state.aiBoard.every(c => c.length === 0);
-                    if (isBoardEmpty || state.phase === 'gameover') {
+                    if ((isBoardEmpty && state.phase !== 'ai_turn') || state.phase === 'gameover') {
                         state.activeAiMode = mode;
-                        if (state.phase !== 'gameover') saveActiveRound(mode);
+                    }
+                    if (roundCheckpoint) {
+                        writeRound({ ...roundCheckpoint, queuedAiMode: mode, activeAiMode: state.activeAiMode });
                     }
                     renderAll();
                 });
@@ -5978,9 +6038,8 @@
             applyLayoutMode(detectDefaultLayoutMode());
             loadStats();
             loadSkins();
-            checkInterruptedRound();
             bindEvents();
-            startNewGame();
+            if (!resumeRound()) startNewGame();
         }
 
         if (document.readyState === 'loading') {
