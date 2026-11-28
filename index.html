@@ -3884,7 +3884,8 @@
             victimSnapshots,
             targetLaneRect,
             targetLaneEl,
-            isPlayerAttacking
+            isPlayerAttacking,
+            projectileSkin = null
         }) {
             const layer = document.getElementById('projectile-layer');
             if (!layer || !sourceSlotEl) return;
@@ -3909,7 +3910,7 @@
                 const projSize = 54;
                 const dieMarkup = renderDieHTML(
                     { value: dieValue, fixed: false },
-                    { sizeClass: 'die-sz-full', owner: isPlayerAttacking ? 'player' : 'ai', showLockPin: false }
+                    { sizeClass: 'die-sz-full', owner: isPlayerAttacking ? 'player' : 'ai', showLockPin: false, overrideSkinId: projectileSkin }
                 );
 
                 proj = document.createElement('div');
@@ -4676,7 +4677,7 @@
             return finalVal;
         }
 
-        async function runPreRoundCoinToss() {
+        async function playCoinToss(isPlayerFirst) {
             const session = state.gameSessionId;
             const overlay = document.getElementById('cointoss-overlay');
             const coinEl = document.getElementById('coin-3d-el');
@@ -4689,8 +4690,6 @@
             titleEl.textContent = '🪙 운명의 동전을 던집니다...';
             subEl.textContent = '앞면(👑): 나 선공 · 뒷면(🎭): 상대 선공 (50:50)';
 
-            const isPlayerFirst = Math.random() < 0.5;
-            saveRound(isPlayerFirst ? 'player_wait_roll' : 'coin_ai_first', { isOpeningTurn: true });
             audio.playCoinFlip();
 
             const targetDeg = isPlayerFirst ? 1800 : 1980;
@@ -4704,7 +4703,7 @@
                 fill: 'forwards'
             });
 
-            if (session !== state.gameSessionId) return;
+            if (session !== state.gameSessionId) return false;
             audio.playCoinLand(isPlayerFirst);
 
             if (isPlayerFirst) {
@@ -4716,10 +4715,17 @@
             }
 
             await new Promise(r => setTimeout(r, 950));
-            if (session !== state.gameSessionId) return;
+            if (session !== state.gameSessionId) return false;
             overlay.classList.add('hidden');
 
             state.isAnimating = false;
+            return true;
+        }
+
+        async function runPreRoundCoinToss() {
+            const isPlayerFirst = Math.random() < 0.5;
+            saveRound(isPlayerFirst ? 'player_wait_roll' : 'coin_ai_first', { isOpeningTurn: true });
+            if (!await playCoinToss(isPlayerFirst)) return;
             state.isOpeningTurn = true;
 
             if (isPlayerFirst) {
@@ -6172,6 +6178,44 @@
             onlineMessage(message);
         }
 
+        function findOnlineSmash(previousGame, game) {
+            // Only 알까기 removes dice. A board comparison also catches it
+            // when a poll arrives after the attacker has rolled the bonus die.
+            if (!previousGame || game.version <= previousGame.version) return null;
+            for (const [defender, board] of previousGame.boards.entries()) {
+                for (const [lane, oldDice] of board.entries()) {
+                    const newDice = game.boards[defender][lane];
+                    const countLooseDice = (dice, value) => dice.filter(die => !die.fixed && die.value === value).length;
+                    const removed = oldDice.find(die => !die.fixed &&
+                        countLooseDice(oldDice, die.value) > countLooseDice(newDice, die.value));
+                    if (removed) return { defender, lane, value: removed.value };
+                }
+            }
+            return null;
+        }
+
+        async function animateOnlineSmash(smash, seat, skins) {
+            const isPlayerAttacking = smash.defender !== seat;
+            const targetSide = isPlayerAttacking ? 'ai' : 'player';
+            const targetLaneEl = document.querySelector(`[data-${targetSide}-lane="${smash.lane}"]`);
+            if (!targetLaneEl) return;
+            const sourceSlotEl = byId('player-die-slot');
+            const victimDice = Array.from(targetLaneEl.querySelectorAll(
+                `[data-die-val="${smash.value}"][data-die-fixed="0"]`
+            ));
+            const skin = DICE_SKIN_CATALOG.find(entry => entry.id === skins[1 - smash.defender]);
+            audio.init();
+            await playAlkkagiFlightAnimation({
+                dieValue: smash.value,
+                sourceSlotEl,
+                victimSnapshots: captureVictimSnapshots(victimDice, targetLaneEl.getBoundingClientRect()),
+                targetLaneRect: targetLaneEl.getBoundingClientRect(),
+                targetLaneEl,
+                isPlayerAttacking,
+                projectileSkin: skin?.id || 'classic_white'
+            });
+        }
+
         async function syncMatch(next) {
             const previous = match;
             if (next.status === 'closed') {
@@ -6223,6 +6267,17 @@
             inGame = true;
             document.body.classList.add('online-game');
             showScreen('app');
+            const smash = findOnlineSmash(previous?.game, game);
+            if (smash) {
+                state.isAnimating = true;
+                try {
+                    await animateOnlineSmash(smash, seat, skins);
+                } catch (error) {
+                    console.warn('알까기 연출을 재생하지 못했습니다.', error);
+                } finally {
+                    state.isAnimating = false;
+                }
+            }
             state.playerBoard = decodeBoard(seat);
             state.aiBoard = decodeBoard(1 - seat);
             state.currentDie = game.die;
@@ -6232,6 +6287,11 @@
             state.rerollAfterDie = game.die;
             const myTurn = game.turn === seat;
             const phase = next.status === 'finished' ? 'gameover' : myTurn ? 'player_' + game.step : 'online_other';
+            if (previous?.status === 'waiting' && next.status === 'playing' && game.opening) {
+                state.phase = 'coin_toss';
+                renderAll();
+                if (!await playCoinToss(myTurn)) return;
+            }
             if (previous?.game && (game.last === 'roll' || game.last === 'reroll')) {
                 state.phase = 'online_other';
                 renderAll();
@@ -6384,7 +6444,6 @@
                     sessionStorage.removeItem(ticketKey);
                 }
             }
-            if (!saved && readSavedRound()) byId('open-single').click();
             setInterval(() => { if (match) onlineAction('poll'); }, 900);
         }
 
