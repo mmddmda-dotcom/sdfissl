@@ -2652,6 +2652,8 @@
         .front-card .ui-btn { min-height:44px; }
         .front-card form { display:grid; gap:10px; }
         #room-code { font-size:1.9rem; letter-spacing:.13em; user-select:all; }
+        #online-nickname { width:100%; padding:10px; text-align:center; font:inherit; }
+        .room-player { display:flex; justify-content:space-between; gap:12px; text-align:left; overflow-wrap:anywhere; }
         #join-code { width:100%; padding:10px; text-align:center; font:inherit; text-transform:uppercase; }
         dialog.front-card { margin:auto; max-width:calc(100vw - 36px); }
         dialog.front-card:not([open]) { display:none; }
@@ -2727,6 +2729,8 @@
     </section></main>
     <main id="online-screen" class="front-screen" hidden><section class="front-card">
         <h2>멀티플레이</h2>
+        <label for="online-nickname">닉네임</label>
+        <input id="online-nickname" type="text" maxlength="16" autocomplete="nickname" placeholder="닉네임 입력">
         <button id="create-room" class="ui-btn ui-btn-gold">방 만들기</button>
         <form id="join-room">
             <input id="join-code" aria-label="방 코드" placeholder="네 자리 방 코드" inputmode="numeric" maxlength="4" autocomplete="off" hidden>
@@ -2738,7 +2742,8 @@
     <main id="room-screen" class="front-screen" hidden><section class="front-card">
         <h2>대기실</h2>
         <p>방 코드</p><strong id="room-code"></strong>
-        <button id="room-copy" class="ui-btn">코드 복사</button>
+        <p class="room-player"><span>방장</span><strong id="room-host-name"></strong></p>
+        <p class="room-player"><span>참가자</span><strong id="room-guest-name"></strong></p>
         <p id="room-status" role="status"></p>
         <button id="room-skins" class="ui-btn">스킨</button>
         <button id="room-ready" class="ui-btn ui-btn-gold" hidden>레디</button>
@@ -2765,6 +2770,8 @@
     </dialog>
     <dialog id="online-result" class="front-card">
         <h2 id="online-result-text"></h2>
+        <button id="online-rematch" class="ui-btn ui-btn-gold">한 판 더</button>
+        <p id="online-rematch-status" role="status"></p>
         <button id="online-result-home" class="ui-btn">메인화면으로 돌아가기</button>
     </dialog>
     <div id="app" class="app-shell" hidden>
@@ -2898,7 +2905,7 @@
                 <!-- 상대 진영 상단 바 -->
                 <div class="faction-bar faction-ai">
                     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                        <span>🎭 상대</span>
+                        <span id="opponent-name">🎭 상대</span>
 
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
@@ -2920,7 +2927,7 @@
 
                 <!-- 플레이어 진영 하단 바 -->
                 <div class="faction-bar faction-player">
-                    <span>👑 나</span>
+                    <span id="self-name">👑 나</span>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:11px;opacity:0.95;">점령 <b id="score-player-lines">0</b>:<b id="score-ai-lines">0</b> · 총점 <b id="score-player-total">0</b></span>
                         <span id="player-turn-badge" class="turn-indicator turn-ind-player">내 턴</span>
@@ -5390,6 +5397,8 @@
         }
 
         function renderAll(popColIdx = -1, popSide = '') {
+            byId('opponent-name').textContent = match ? onlineName(1 - match.seat) : '🎭 상대';
+            byId('self-name').textContent = match ? onlineName(match.seat) + ' (나)' : '👑 나';
             const currentMode = state.activeAiMode;
             const currentStreak = state.stats[currentMode].streak;
             const modeLabel = currentMode === 'tazza' ? '타짜' : '일반';
@@ -5413,7 +5422,7 @@
             const aiStatusEl = document.getElementById('ai-turn-status');
             const aiMiniDieBox = document.getElementById('ai-mini-die-box');
             if (isAiTurn) {
-                aiStatusEl.textContent = match ? '상대 차례' : state.aiFixedRoll ? '고정 주사위 굴리는 중' : '주사위 굴리는 중';
+                aiStatusEl.textContent = match ? onlineName(1 - match.seat) + ' 차례' : state.aiFixedRoll ? '고정 주사위 굴리는 중' : '주사위 굴리는 중';
                 if (state.aiDisplayDie) {
                     aiMiniDieBox.innerHTML = renderDieHTML(
                         { value: state.aiDisplayDie, fixed: state.aiFixedRoll, fixedOwner: 'ai' },
@@ -5698,8 +5707,17 @@
             } else if (state.phase === 'online_other') {
                 const game = match.game;
                 renderTrayOnly(false, game.opening || game.step.startsWith('bonus'));
-                trayTitle.textContent = game.die ? '상대 주사위 [' + state.currentDie + ']' : '상대 차례';
-                trayDesc.textContent = game.step === 'reroll_choose' ? '상대가 주사위 눈을 고르고 있어요.' : '상대의 행동을 기다리는 중이에요.';
+                const name = onlineName(1 - match.seat);
+                const subject = withSubjectParticle(name);
+                const actions = {
+                    wait_roll: '주사위를 굴릴 차례예요.',
+                    place: '놓을 칸을 고르고 있어요.',
+                    reroll_choose: '주사위 눈을 고르고 있어요.',
+                    bonus_wait_roll: '보너스 주사위를 굴릴 차례예요.',
+                    bonus_place: '보너스 주사위를 놓을 칸을 고르고 있어요.'
+                };
+                trayTitle.textContent = state.currentDie ? `${name}의 주사위 [${state.currentDie}]` : `${name} 차례`;
+                trayDesc.textContent = `${subject} ${actions[game.step] || '차례를 진행하고 있어요.'}`;
                 btnRoll.disabled = true;
                 btnRoll.textContent = '상대 차례';
                 btnReroll.disabled = true;
@@ -6126,6 +6144,20 @@
             url: 'https://yxjnrkuccoyspcyxfhen.supabase.co',
             key: 'sb_publishable_ekQxLCcJsSA5Q7O2YPWspw_tTDbXD-N'
         };
+        const nicknameKey = 'tika_online_nickname';
+        function onlineName(seat) {
+            return match?.names?.[seat] || (seat === 0 ? '방장' : '참가자');
+        }
+
+        function withSubjectParticle(name) {
+            const ending = name.normalize('NFKC').match(/[가-힣a-z0-9](?=[^가-힣a-z0-9]*$)/i)?.[0] || '';
+            const syllable = ending.charCodeAt(0);
+            const hasBatchim = syllable >= 0xAC00 && syllable <= 0xD7A3
+                ? (syllable - 0xAC00) % 28 !== 0
+                : /^[013678lmn]$/i.test(ending);
+            return name + (hasBatchim ? '이' : '가');
+        }
+
         const ticketKey = 'tika_online_session';
         let match = null;
         let onlineBusy = false;
@@ -6230,13 +6262,16 @@
                 offerOnlineResume = false;
                 showScreen('room-screen');
                 byId('room-code').textContent = next.code;
+                byId('room-host-name').textContent = onlineName(0);
+                byId('room-guest-name').textContent = next.joined ? onlineName(1) : '입장 대기 중';
                 byId('room-start').hidden = next.seat !== 0;
                 byId('room-start').disabled = !next.ready;
                 byId('room-ready').hidden = next.seat === 0;
                 byId('room-ready').textContent = next.ready ? '레디 취소' : '레디';
+                const opponent = withSubjectParticle(onlineName(1 - next.seat));
                 byId('room-status').textContent = !next.joined ? '친구를 기다리는 중'
-                    : next.ready ? (next.seat === 0 ? '친구가 준비됐어요.' : '방장이 시작하기를 기다리는 중')
-                    : (next.seat === 0 ? '친구가 레디를 누르기를 기다리는 중' : '준비되면 레디를 눌러 주세요.');
+                    : next.ready ? (next.seat === 0 ? `${opponent} 준비됐어요.` : `${opponent} 시작하기를 기다리는 중이에요.`)
+                    : (next.seat === 0 ? `${opponent} 레디를 누르기를 기다리는 중이에요.` : '준비되면 레디를 눌러 주세요.');
                 return;
             }
             if (offerOnlineResume && next.status === 'playing') {
@@ -6249,7 +6284,15 @@
                 return;
             }
             offerOnlineResume = false;
+            if (next.status === 'finished') {
+                const voted = Boolean(next.rematch?.[next.seat]);
+                const otherVoted = Boolean(next.rematch?.[1 - next.seat]);
+                byId('online-rematch').disabled = voted;
+                byId('online-rematch-status').textContent = voted ? `${onlineName(1 - next.seat)}의 응답을 기다리는 중이에요.`
+                    : otherVoted ? `${withSubjectParticle(onlineName(1 - next.seat))} 한 판 더 하자고 했어요.` : '';
+            }
             if (previous?.game?.version === next.game.version && previous.status === next.status) return;
+            if (next.status === 'playing') byId('online-result').close();
             byId('skins-modal').classList.add('hidden');
 
             const { game, seat, skins } = next;
@@ -6267,7 +6310,8 @@
             inGame = true;
             document.body.classList.add('online-game');
             showScreen('app');
-            const smash = findOnlineSmash(previous?.game, game);
+            const sameRound = !previous?.game || (previous.game.round ?? 1) === (game.round ?? 1);
+            const smash = sameRound ? findOnlineSmash(previous?.game, game) : null;
             if (smash) {
                 state.isAnimating = true;
                 try {
@@ -6287,12 +6331,12 @@
             state.rerollAfterDie = game.die;
             const myTurn = game.turn === seat;
             const phase = next.status === 'finished' ? 'gameover' : myTurn ? 'player_' + game.step : 'online_other';
-            if (previous?.status === 'waiting' && next.status === 'playing' && game.opening) {
+            if ((previous?.status === 'waiting' || !sameRound) && next.status === 'playing') {
                 state.phase = 'coin_toss';
                 renderAll();
-                if (!await playCoinToss(myTurn)) return;
+                if (!await playCoinToss((game.first ?? game.turn) === seat)) return;
             }
-            if (previous?.game && (game.last === 'roll' || game.last === 'reroll')) {
+            if (sameRound && previous?.game && (game.last === 'roll' || game.last === 'reroll')) {
                 state.phase = 'online_other';
                 renderAll();
                 audio.init();
@@ -6320,7 +6364,7 @@
                 if (['poll','ready','start'].includes(action)) payload = { ...payload, skin: state.skins.equippedDice };
                 const next = await roomRequest(action, payload, code);
                 if (action === 'leave') exitOnline();
-                else if (typeof next.joined !== 'boolean') {
+                else if (!Array.isArray(next.names) || !Array.isArray(next.rematch)) {
                     if (action === 'create') await roomRequest('leave', {}, next.code);
                     onlineMessage('Supabase에 최신 멀티플레이 설정을 적용해 주세요.');
                 } else await syncMatch(next);
@@ -6335,6 +6379,7 @@
                 };
                 const message = messages[error.message] || '연결할 수 없어요. 잠시 뒤 다시 시도해 주세요.';
                 if (action === 'leave' || (action === 'poll' && error.message === 'NO_ROOM')) exitOnline(message);
+                else if (action === 'rematch') byId('online-rematch-status').textContent = message;
                 else if (inGame) byId('tray-desc').textContent = message;
                 else {
                     onlineMessage(message);
@@ -6405,19 +6450,23 @@
             byId('online-result-home').onclick = () => onlineAction('leave');
             byId('room-leave').onclick = () => onlineAction('leave');
             byId('room-start').onclick = () => onlineAction('start');
-            byId('room-copy').onclick = async () => {
-                try {
-                    await navigator.clipboard.writeText(match.code);
-                    byId('room-status').textContent = '방 코드를 복사했어요.';
-                } catch {
-                    byId('room-status').textContent = '위 방 코드를 길게 눌러 복사해 주세요.';
-                }
+            const nicknameInput = byId('online-nickname');
+            nicknameInput.value = localStorage.getItem(nicknameKey) || '';
+            const saveNickname = () => {
+                const nickname = nicknameInput.value.trim();
+                localStorage.setItem(nicknameKey, nickname);
+                return nickname;
+            };
+            nicknameInput.addEventListener('change', saveNickname);
+            byId('online-result').addEventListener('cancel', event => event.preventDefault());
+            byId('online-rematch').onclick = () => {
+                if (match?.status === 'finished') onlineAction('rematch', { round: match.game.round ?? 1 });
             };
             byId('create-room').onclick = () => {
                 if (onlineBusy) return;
                 if (!onlineConfig.url || !onlineConfig.key) return onlineMessage('Supabase 연결이 필요해요.');
                 onlineTicket = crypto.randomUUID();
-                onlineAction('create', { skin: state.skins.equippedDice });
+                onlineAction('create', { skin: state.skins.equippedDice, nickname: saveNickname() });
             };
             byId('join-room').onsubmit = event => {
                 event.preventDefault();
@@ -6431,7 +6480,7 @@
                 const code = input.value.trim();
                 if (!/^\d{4}$/.test(code)) return onlineMessage('네 자리 숫자 방 코드를 입력해 주세요.');
                 onlineTicket = crypto.randomUUID();
-                onlineAction('join', { skin: state.skins.equippedDice }, code);
+                onlineAction('join', { skin: state.skins.equippedDice, nickname: saveNickname() }, code);
             };
             const saved = sessionStorage.getItem(ticketKey) || localStorage.getItem(ticketKey);
             if (saved && onlineConfig.url && onlineConfig.key) {
